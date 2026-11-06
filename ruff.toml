@@ -1,0 +1,3 @@
+[lint]
+# Legacy modules intentionally use compact one-line `if ...: return` statements.
+ignore = ["E701"]

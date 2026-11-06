@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import csrf_field %}
+{% block title %}Baseline Baru{% endblock %}
+{% block page_title %}Baseline Baru — {{ device.name }}{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto card p-6">
+  <div class="mb-5">
+    <h2 class="text-lg font-semibold">Upload Baseline</h2>
+    <p class="text-sm text-slate-500 dark:text-slate-400">Baseline baru akan menggantikan baseline aktif untuk {{ device.name }}. Versi lama tetap tersimpan.</p>
+  </div>
+  <form method="POST" enctype="multipart/form-data" action="{{ url_for('baselines.new_for_device', device_id=device.id) }}" class="space-y-4">
+    {{ csrf_field() }}
+    <div>
+      <label class="form-label">Label</label>
+      <input type="text" name="label" maxlength="160" class="form-input" placeholder="Baseline {{ device.name }}" />
+    </div>
+    <div>
+      <label class="form-label">File konfigurasi (.rsc / teks)</label>
+      <input type="file" name="config_file" accept=".rsc,.txt,text/plain" class="form-input" />
+      <p class="text-[11px] text-slate-400 mt-1">Maksimal 1 MB, UTF-8.</p>
+    </div>
+    <div>
+      <label class="form-label">Atau tempel konfigurasi</label>
+      <textarea name="config_text" rows="12" class="form-input font-mono text-xs" placeholder="/system identity&#10;set name=EDGE-RTR-01"></textarea>
+    </div>
+    <div>
+      <label class="form-label">Catatan</label>
+      <textarea name="notes" rows="3" maxlength="2000" class="form-input"></textarea>
+    </div>
+    <div class="flex items-center gap-3">
+      <button type="submit" class="px-5 py-2 bg-teal-600 hover:bg-teal-500 text-white text-sm font-semibold rounded-lg">Simpan Baseline</button>
+      <a href="{{ url_for('devices.detail', device_id=device.id) }}" class="px-5 py-2 border border-slate-300 dark:border-slate-600 text-sm font-semibold rounded-lg">Batal</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

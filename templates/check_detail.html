@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import risk_badge, incident_badge, change_badge, empty_state %}
+{% block title %}Snapshot #{{ check.id }}{% endblock %}
+{% block page_title %}Snapshot Konfigurasi #{{ check.id }}{% endblock %}
+{% block content %}
+<div class="space-y-5">
+  <div class="flex flex-wrap items-start justify-between gap-3">
+    <div>
+      <div class="flex items-center gap-2">
+        <h2 class="text-xl font-bold">{{ check.device.name }}</h2>
+        <span class="status-badge {{ 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' if check.status == 'OK' else 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300' }}">{{ check.status }}</span>
+        {{ risk_badge(check.highest_risk) }}
+      </div>
+      <p class="text-sm text-slate-500 dark:text-slate-400">{{ check.created_at|fmt_dt }} · {{ check.source }} · oleh {{ check.checked_by }}</p>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <a href="{{ url_for('devices.detail', device_id=check.device_id) }}" class="btn-sm btn-secondary">Perangkat</a>
+      <a href="{{ url_for('checks.download', check_id=check.id) }}" class="btn-sm btn-outline">Unduh Snapshot</a>
+    </div>
+  </div>
+
+  <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="card p-4"><p class="text-[11px] uppercase text-slate-500">Perubahan</p><p class="text-2xl font-bold">{{ check.change_count }}</p></div>
+    <div class="card p-4"><p class="text-[11px] uppercase text-slate-500">Risiko Tertinggi</p><p class="text-lg font-bold">{{ check.highest_risk }}</p></div>
+    <div class="card p-4"><p class="text-[11px] uppercase text-slate-500">SHA-256 Snapshot</p><p class="hash">{{ check.sha256 }}</p></div>
+    <div class="card p-4"><p class="text-[11px] uppercase text-slate-500">SHA-256 Baseline</p><p class="hash">{{ check.baseline_sha256 or '—' }}</p></div>
+  </div>
+
+  {% if incidents %}
+  <div class="card p-4">
+    <h3 class="font-semibold text-sm mb-2">Insiden Terkait</h3>
+    <div class="flex flex-wrap gap-2">
+      {% for i in incidents %}
+      <a href="{{ url_for('incidents.detail', incident_id=i.id) }}" class="inline-flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-800/50">{{ i.code }} {{ incident_badge(i.status) }}</a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="space-y-3">
+    <h3 class="font-semibold text-sm">Perubahan Semantik</h3>
+    {% for c in changes %}
+    <div class="card p-4">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div class="min-w-0">
+          <div class="flex flex-wrap items-center gap-2">
+            {{ change_badge(c.change_type) }}
+            {{ risk_badge(c.risk_level) }}
+            <span class="font-mono text-xs text-slate-500">{{ c.qualified_name }}</span>
+          </div>
+          <p class="text-sm font-medium mt-1">{{ c.title }}</p>
+        </div>
+        <span class="text-[11px] uppercase tracking-wide text-slate-400">{{ c.rule_id }}</span>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-3 mt-3">
+        <div class="rounded-lg border border-red-200 dark:border-red-900 p-3 diff-old">
+          <p class="text-[10px] uppercase tracking-wide text-red-600 dark:text-red-400 mb-1">Sebelum</p>
+          <code class="text-xs break-all">{{ c.display_old }}</code>
+        </div>
+        <div class="rounded-lg border border-emerald-200 dark:border-emerald-900 p-3 diff-new">
+          <p class="text-[10px] uppercase tracking-wide text-emerald-600 dark:text-emerald-400 mb-1">Sesudah</p>
+          <code class="text-xs break-all">{{ c.display_new }}</code>
+        </div>
+      </div>
+      <div class="grid sm:grid-cols-3 gap-3 mt-3 text-xs text-slate-600 dark:text-slate-300">
+        <div><p class="font-semibold text-slate-500 mb-0.5">Alasan</p>{{ c.reason }}</div>
+        <div><p class="font-semibold text-slate-500 mb-0.5">Dampak</p>{{ c.impact }}</div>
+        <div><p class="font-semibold text-slate-500 mb-0.5">Rekomendasi</p>{{ c.recommendation }}</div>
+      </div>
+    </div>
+    {% else %}
+    <div class="card">{{ empty_state('Tidak ada perubahan. Konfigurasi identik secara semantik dengan baseline.') }}</div>
+    {% endfor %}
+  </div>
+
+  <details class="card p-4">
+    <summary class="cursor-pointer text-sm font-semibold">Lihat konfigurasi snapshot</summary>
+    <pre class="code-block mt-3">{{ check.content }}</pre>
+  </details>
+</div>
+{% endblock %}

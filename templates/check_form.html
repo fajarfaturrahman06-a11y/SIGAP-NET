@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import csrf_field, empty_state %}
+{% block title %}Periksa Konfigurasi{% endblock %}
+{% block page_title %}Periksa Konfigurasi{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto card p-6">
+  <div class="mb-5">
+    <h2 class="text-lg font-semibold">Snapshot Baru</h2>
+    <p class="text-sm text-slate-500 dark:text-slate-400">Bandingkan konfigurasi dengan baseline aktif, lalu nilai risiko setiap perubahan.</p>
+  </div>
+  {% if not devices %}
+    {{ empty_state('Belum ada perangkat. Tambahkan perangkat dan baseline terlebih dahulu.') }}
+  {% else %}
+  <form method="POST" enctype="multipart/form-data" action="{{ url_for('checks.new') }}" class="space-y-4">
+    {{ csrf_field() }}
+    <div>
+      <label class="form-label">Perangkat *</label>
+      <select name="device_id" required class="form-input">
+        <option value="">— pilih perangkat —</option>
+        {% for d in devices %}
+        <option value="{{ d.id }}">{{ d.name }} — {{ d.ip_address }}{% if not d.active_baseline %} (belum ada baseline){% endif %}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label class="form-label">Sumber konfigurasi</label>
+      <div class="flex flex-wrap gap-4 text-sm">
+        <label class="flex items-center gap-2"><input type="radio" name="mode" value="upload" checked /> Upload / tempel</label>
+        <label class="flex items-center gap-2"><input type="radio" name="mode" value="current" /> Gunakan konfigurasi tersimpan perangkat</label>
+      </div>
+    </div>
+    <div>
+      <label class="form-label">File konfigurasi</label>
+      <input type="file" name="config_file" accept=".rsc,.txt,text/plain" class="form-input" />
+    </div>
+    <div>
+      <label class="form-label">Atau tempel konfigurasi</label>
+      <textarea name="config_text" rows="12" class="form-input font-mono text-xs" placeholder="/system identity&#10;set name=EDGE-RTR-01"></textarea>
+    </div>
+    <div class="flex items-center gap-3">
+      <button type="submit" class="px-5 py-2 bg-teal-600 hover:bg-teal-500 text-white text-sm font-semibold rounded-lg">Jalankan Pemeriksaan</button>
+      <a href="{{ url_for('checks.index') }}" class="px-5 py-2 border border-slate-300 dark:border-slate-600 text-sm font-semibold rounded-lg">Batal</a>
+    </div>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}

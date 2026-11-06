@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Error {{ code|default(500) }}{% endblock %}
+{% block page_title %}Terjadi Kesalahan{% endblock %}
+{% block content %}
+<div class="max-w-xl mx-auto card p-8 text-center">
+  <p class="text-6xl font-extrabold text-teal-600 dark:text-teal-400">{{ code|default(500) }}</p>
+  <h2 class="text-xl font-semibold mt-3">{{ msg|default('Permintaan tidak dapat diproses.') }}</h2>
+  <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">Halaman ini adalah alias lama; gunakan navigasi aplikasi untuk melanjutkan.</p>
+  <div class="mt-6 flex flex-wrap justify-center gap-2">
+    <a href="{{ url_for('dashboard') }}" class="px-5 py-2 bg-teal-600 hover:bg-teal-500 text-white text-sm font-semibold rounded-lg">Dashboard</a>
+    <a href="{{ url_for('login') }}" class="px-5 py-2 border border-slate-300 dark:border-slate-600 text-sm font-semibold rounded-lg">Login</a>
+  </div>
+</div>
+{% endblock %}

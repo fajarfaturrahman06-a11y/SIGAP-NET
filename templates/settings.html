@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import csrf_field %}
+{% block title %}Settings{% endblock %}
+{% block page_title %}Settings / Simulation{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto space-y-6">
+  <div class="card p-6">
+    <h2 class="font-semibold mb-4">Change Password</h2>
+    <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">Minimal 12 karakter, kombinasi huruf besar/kecil, angka, dan simbol.</p>
+    <form method="POST" class="space-y-4">
+      {{ csrf_field() }}
+      <input type="hidden" name="action" value="change_password" />
+      <div>
+        <label class="form-label">Current Password</label>
+        <input type="password" name="current_password" required class="form-input" />
+      </div>
+      <div>
+        <label class="form-label">New Password</label>
+        <input type="password" name="new_password" required minlength="12" class="form-input" />
+      </div>
+      <div>
+        <label class="form-label">Confirm New Password</label>
+        <input type="password" name="confirm_password" required minlength="12" class="form-input" />
+      </div>
+      <button type="submit" class="px-5 py-2 bg-teal-600 hover:bg-teal-500 text-white text-sm font-semibold rounded-lg">Update Password</button>
+    </form>
+  </div>
+
+  <div class="card p-6">
+    <h2 class="font-semibold mb-2">Test All Connections</h2>
+    <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Uji konektivitas ke seluruh router legacy yang aktif. Koneksi SSH kini memverifikasi host key.</p>
+    <form method="POST" data-confirm="Uji koneksi ke semua router aktif?">
+      {{ csrf_field() }}
+      <input type="hidden" name="action" value="test_all" />
+      <button type="submit" class="px-5 py-2 border border-slate-300 dark:border-slate-600 text-sm font-semibold rounded-lg">Test All Routers</button>
+    </form>
+  </div>
+
+  {% if can_manage %}
+  <div class="card p-6">
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+      <div>
+        <h2 class="font-semibold">Simulation Mode</h2>
+        <p class="text-sm text-slate-500 dark:text-slate-400">Jalankan pipeline penuh pada perangkat lab: snapshot → hash → diff → risiko → insiden.</p>
+      </div>
+    </div>
+    <div class="space-y-3">
+      {% for s in scenarios %}
+      <div class="rounded-lg border border-slate-200 dark:border-slate-700 p-4 flex flex-wrap items-center justify-between gap-3">
+        <div class="min-w-0">
+          <p class="text-sm font-semibold">{{ s.title }}</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400">{{ s.summary }}</p>
+          <p class="text-[11px] mt-1 text-slate-400">Risiko yang diharapkan: {{ s.expected }}</p>
+        </div>
+        <form method="POST" action="{{ url_for('simulation.run', scenario=s.key) }}" data-confirm="Jalankan {{ s.title }}?">
+          {{ csrf_field() }}
+          <button type="submit" class="btn-sm {{ 'btn-primary' if s.key == 'normal' else 'btn-secondary' }}">Jalankan</button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+    {% if is_admin %}
+    <div class="mt-5 pt-5 border-t border-slate-200 dark:border-slate-800">
+      <h3 class="text-sm font-semibold text-red-700 dark:text-red-300">Reset Data Demo</h3>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-3">Menghapus baseline, snapshot, perubahan, dan insiden demo. Audit trail tetap tersimpan.</p>
+      <form method="POST" action="{{ url_for('simulation.reset') }}" data-confirm="Reset seluruh data demo? Tindakan ini tidak dapat dibatalkan.">
+        {{ csrf_field() }}
+        <button type="submit" class="btn-sm bg-red-600 hover:bg-red-500 text-white">Reset Demo</button>
+      </form>
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <div class="card p-6">
+    <h2 class="font-semibold mb-2">Security Information</h2>
+    <ul class="text-sm text-slate-600 dark:text-slate-400 space-y-1.5">
+      <li>✓ Credential router terenkripsi at-rest (Fernet)</li>
+      <li>✓ CSRF pada seluruh form POST</li>
+      <li>✓ Query parameterized (SQLAlchemy ORM)</li>
+      <li>✓ Path-traversal prevention pada file backup</li>
+      <li>✓ SSH host key diverifikasi terhadap known_hosts; unknown key ditolak</li>
+      <li>✓ Login throttling berbasis database (lintas worker), fail-closed</li>
+      <li>✓ Audit trail append-only, commit atomik dengan perubahan bisnis</li>
+      <li>✓ Security headers (CSP, X-Frame-Options, dll.)</li>
+      <li>✓ Session HttpOnly + SameSite</li>
+      <li>✓ Restore perangkat nyata diblokir secara default</li>
+    </ul>
+  </div>
+</div>
+{% endblock %}

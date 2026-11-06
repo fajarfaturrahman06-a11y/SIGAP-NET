@@ -1,0 +1,39 @@
+{% macro risk_badge(level) -%}
+<span class="status-badge {{ level|risk_class }}">{{ level }}</span>
+{%- endmacro %}
+
+{% macro incident_badge(status) -%}
+<span class="status-badge {{ status|incident_class }}">{{ status|replace('_', ' ') }}</span>
+{%- endmacro %}
+
+{% macro integrity_badge(state) -%}
+<span class="status-badge {{ state|integrity_class }}">{{ state|replace('_', ' ') }}</span>
+{%- endmacro %}
+
+{% macro change_badge(change_type) -%}
+<span class="status-badge {{ change_type|change_class }}">{{ change_type }}</span>
+{%- endmacro %}
+
+{% macro render_pagination(pager) -%}
+{% if pager.pages > 1 %}
+<div class="flex items-center justify-between gap-3 px-5 py-3 border-t border-slate-200 dark:border-slate-800 text-sm text-slate-500">
+  <span>Halaman {{ pager.page }} dari {{ pager.pages }} · {{ pager.total }} data</span>
+  <div class="flex items-center gap-2">
+    {% if pager.has_prev %}
+    <a href="{{ page_url(pager.prev_num) }}" class="btn-sm btn-secondary">Sebelumnya</a>
+    {% endif %}
+    {% if pager.has_next %}
+    <a href="{{ page_url(pager.next_num) }}" class="btn-sm btn-secondary">Berikutnya</a>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+{%- endmacro %}
+
+{% macro empty_state(message) -%}
+<div class="px-5 py-12 text-center text-sm text-slate-400">{{ message }}</div>
+{%- endmacro %}
+
+{% macro csrf_field() -%}
+<input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+{%- endmacro %}

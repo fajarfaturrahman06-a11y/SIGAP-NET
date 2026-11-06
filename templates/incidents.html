@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import risk_badge, incident_badge, empty_state, render_pagination %}
+{% block title %}Insiden{% endblock %}
+{% block page_title %}Incident Management{% endblock %}
+{% block content %}
+<div class="space-y-5">
+  <div>
+    <h2 class="text-lg font-semibold">Insiden Keamanan Konfigurasi</h2>
+    <p class="text-sm text-slate-500 dark:text-slate-400">Verifikasi, dokumentasi, dan respons terkontrol terhadap perubahan berisiko.</p>
+  </div>
+
+  <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+    {% for s in statuses %}
+    <div class="card p-4"><p class="text-[11px] uppercase text-slate-500">{{ s|replace('_',' ') }}</p><p class="text-2xl font-bold">{{ counts[s] }}</p></div>
+    {% endfor %}
+  </div>
+
+  <form method="GET" class="card p-4 flex flex-wrap items-end gap-3">
+    <div>
+      <label class="form-label">Status</label>
+      <select name="status" class="form-input">
+        <option value="">Semua</option>
+        {% for s in statuses %}<option value="{{ s }}" {% if status == s %}selected{% endif %}>{{ s|replace('_',' ') }}</option>{% endfor %}
+      </select>
+    </div>
+    <div>
+      <label class="form-label">Severity</label>
+      <select name="severity" class="form-input">
+        <option value="">Semua</option>
+        {% for level in ['LOW','MEDIUM','HIGH','CRITICAL'] %}<option value="{{ level }}" {% if severity == level %}selected{% endif %}>{{ level }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="min-w-[180px]">
+      <label class="form-label">Perangkat</label>
+      <select name="device" class="form-input">
+        <option value="">Semua</option>
+        {% for d in devices %}<option value="{{ d.id }}" {% if device_id == d.id %}selected{% endif %}>{{ d.name }}</option>{% endfor %}
+      </select>
+    </div>
+    <button class="btn-sm btn-primary" type="submit">Filter</button>
+    <a href="{{ url_for('incidents.index') }}" class="btn-sm btn-outline">Reset</a>
+  </form>
+
+  <div class="card overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="table-card">
+        <thead class="bg-slate-50 dark:bg-slate-800/60 text-left text-[11px] uppercase tracking-wide text-slate-500">
+          <tr><th class="px-4 py-3">Kode</th><th class="px-4 py-3">Perangkat</th><th class="px-4 py-3">Severity</th><th class="px-4 py-3">Status</th><th class="px-4 py-3">Ditugaskan</th><th class="px-4 py-3">Terdeteksi</th><th class="px-4 py-3">Aksi</th></tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
+          {% for i in incidents %}
+          <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+            <td class="px-4 py-3 font-semibold">{{ i.code }}</td>
+            <td class="px-4 py-3"><a class="text-teal-700 dark:text-teal-300" href="{{ url_for('devices.detail', device_id=i.device_id) }}">{{ i.device.name }}</a></td>
+            <td class="px-4 py-3">{{ risk_badge(i.severity) }}</td>
+            <td class="px-4 py-3">{{ incident_badge(i.status) }}</td>
+            <td class="px-4 py-3 text-xs">{{ i.assigned_to or '—' }}</td>
+            <td class="px-4 py-3 text-xs text-slate-500">{{ i.detected_at|fmt_dt }}</td>
+            <td class="px-4 py-3"><a href="{{ url_for('incidents.detail', incident_id=i.id) }}" class="btn-sm btn-secondary">Buka</a></td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7">{{ empty_state('Tidak ada insiden sesuai filter.') }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {{ render_pagination(pagination) }}
+  </div>
+</div>
+{% endblock %}

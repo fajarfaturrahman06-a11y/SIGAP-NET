@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import csrf_field %}
+{% block title %}{{ 'Edit' if is_edit else 'Tambah' }} Pengguna{% endblock %}
+{% block page_title %}{{ 'Edit Pengguna' if is_edit else 'Tambah Pengguna' }}{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto space-y-5">
+  <div class="card p-6">
+    <div class="mb-5">
+      <h2 class="text-lg font-semibold">{{ 'Edit' if is_edit else 'Pengguna Baru' }}</h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400">Password minimal 12 karakter dengan huruf besar, huruf kecil, angka, dan simbol.</p>
+    </div>
+    <form method="POST" action="{{ url_for('users.edit', user_id=user.id) if is_edit else url_for('users.new') }}" class="space-y-4">
+      {{ csrf_field() }}
+      <div>
+        <label class="form-label">Username</label>
+        {% if is_edit %}
+        <input type="text" class="form-input bg-slate-100 dark:bg-slate-800" value="{{ user.username }}" disabled />
+        {% else %}
+        <input type="text" name="username" required minlength="3" maxlength="80" pattern="[A-Za-z0-9_.-]+" class="form-input" />
+        {% endif %}
+      </div>
+      <div>
+        <label class="form-label">Email</label>
+        <input type="email" name="email" maxlength="120" class="form-input" value="{{ user.email if user and user.email else '' }}" />
+      </div>
+      <div>
+        <label class="form-label">Role</label>
+        <select name="role" class="form-input">
+          {% for r in roles %}
+          <option value="{{ r }}" {% if user and user.role == r %}selected{% endif %}>{{ role_labels.get(r, r) }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Password {{ '(biarkan kosong jika tidak diubah)' if is_edit else '*' }}</label>
+        <input type="password" name="password" minlength="12" class="form-input" {% if not is_edit %}required{% endif %} autocomplete="new-password" />
+      </div>
+      {% if is_edit %}
+      <label class="flex items-center gap-2 text-sm">
+        <input type="checkbox" name="active" value="1" {% if user.active %}checked{% endif %} />
+        Akun aktif
+      </label>
+      {% endif %}
+      <div class="flex items-center gap-3 pt-2">
+        <button type="submit" class="px-5 py-2 bg-teal-600 hover:bg-teal-500 text-white text-sm font-semibold rounded-lg">{{ 'Simpan' if is_edit else 'Buat Pengguna' }}</button>
+        <a href="{{ url_for('users.index') }}" class="px-5 py-2 border border-slate-300 dark:border-slate-600 text-sm font-semibold rounded-lg">Batal</a>
+      </div>
+    </form>
+  </div>
+
+  {% if is_edit and current_user.id != user.id %}
+  <div class="card p-5 border-red-200 dark:border-red-900">
+    <h3 class="font-semibold text-sm text-red-700 dark:text-red-300">Hapus Pengguna</h3>
+    <form method="POST" action="{{ url_for('users.delete', user_id=user.id) }}" class="mt-3" data-confirm="Hapus pengguna {{ user.username }}?">
+      {{ csrf_field() }}
+      <button class="btn-sm bg-red-600 hover:bg-red-500 text-white">Hapus {{ user.username }}</button>
+    </form>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

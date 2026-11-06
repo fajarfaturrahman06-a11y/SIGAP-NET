@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import csrf_field %}
+{% block title %}Baseline {{ baseline.version_label }}{% endblock %}
+{% block page_title %}Baseline {{ baseline.version_label }} — {{ baseline.device.name }}{% endblock %}
+{% block content %}
+<div class="space-y-5">
+  <div class="flex flex-wrap items-start justify-between gap-3">
+    <div>
+      <div class="flex items-center gap-2">
+        <h2 class="text-xl font-bold">{{ baseline.device.name }} · {{ baseline.version_label }}</h2>
+        <span class="status-badge {{ 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' if baseline.is_active else 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400' }}">{{ 'AKTIF' if baseline.is_active else 'ARSIP' }}</span>
+      </div>
+      <p class="text-sm text-slate-500 dark:text-slate-400">{{ baseline.label or 'Tanpa label' }} · dibuat {{ baseline.created_at|fmt_dt }} oleh {{ baseline.created_by }}</p>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <a href="{{ url_for('devices.detail', device_id=baseline.device_id) }}" class="btn-sm btn-secondary">Kembali ke Perangkat</a>
+      <a href="{{ url_for('baselines.download', baseline_id=baseline.id) }}" class="btn-sm btn-outline">Unduh</a>
+      {% if is_admin and not baseline.is_active %}
+      <form method="POST" action="{{ url_for('baselines.activate', baseline_id=baseline.id) }}" data-confirm="Aktifkan baseline {{ baseline.version_label }}? Baseline aktif saat ini akan diarsipkan.">{{ csrf_field() }}<button class="btn-sm btn-primary">Aktifkan</button></form>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="grid sm:grid-cols-2 gap-4">
+    <div class="card p-4"><p class="text-[11px] uppercase text-slate-500">SHA-256</p><p class="hash mt-1">{{ baseline.sha256 }}</p></div>
+    <div class="card p-4"><p class="text-[11px] uppercase text-slate-500">Versi</p><p class="text-2xl font-bold">{{ baseline.version_label }}</p></div>
+  </div>
+
+  {% if baseline.notes %}
+  <div class="card p-4"><h3 class="font-semibold text-sm mb-1">Catatan</h3><p class="text-sm text-slate-600 dark:text-slate-300 whitespace-pre-wrap">{{ baseline.notes }}</p></div>
+  {% endif %}
+
+  <div class="card p-5">
+    <h3 class="font-semibold text-sm mb-3">Isi Baseline</h3>
+    <pre class="code-block">{{ baseline.content }}</pre>
+  </div>
+</div>
+{% endblock %}

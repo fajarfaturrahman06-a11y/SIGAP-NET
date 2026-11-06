@@ -1,0 +1,53 @@
+.env
+.env.*
+*.pem
+*.key
+known_hosts
+__pycache__/
+*.pyc
+backups/
+logs/
+.secret_key
+.encryption_key
+
+# Virtual environments
+venv/
+.venv/
+ENV/
+env/
+
+# Python packaging and build artifacts
+*.egg-info/
+.eggs/
+.coverage
+htmlcov/
+.pytest_cache/
+.ruff_cache/
+.tox/
+.mypy_cache/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+
+migrations
+mikrotik_backup.db
+data/
+*.db
+*.sqlite
+*.sqlite3
+Dockerfile-backup
+docker-compose.yml-backup
+entrypoint.sh-backup
+
+# Runtime and sensitive files
+*.log
+*.sqlite-*
+*.db-*
+instance/

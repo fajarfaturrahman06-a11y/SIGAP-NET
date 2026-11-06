@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import risk_badge, empty_state, render_pagination %}
+{% block title %}Change Detection{% endblock %}
+{% block page_title %}Change Detection{% endblock %}
+{% block content %}
+<div class="space-y-5">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h2 class="text-lg font-semibold">Snapshot & Perubahan Konfigurasi</h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400">Setiap snapshot menyimpan hash, diff semantik, dan hasil penilaian risiko.</p>
+    </div>
+    {% if can_manage %}
+    <a href="{{ url_for('checks.new') }}" class="btn-sm btn-primary">+ Periksa Konfigurasi</a>
+    {% endif %}
+  </div>
+
+  <form method="GET" class="card p-4 flex flex-wrap items-end gap-3">
+    <div class="min-w-[180px]">
+      <label class="form-label">Perangkat</label>
+      <select name="device" class="form-input">
+        <option value="">Semua</option>
+        {% for d in devices %}<option value="{{ d.id }}" {% if device_id == d.id %}selected{% endif %}>{{ d.name }}</option>{% endfor %}
+      </select>
+    </div>
+    <div>
+      <label class="form-label">Status</label>
+      <select name="status" class="form-input">
+        <option value="">Semua</option>
+        <option value="OK" {% if status == 'OK' %}selected{% endif %}>OK</option>
+        <option value="CHANGED" {% if status == 'CHANGED' %}selected{% endif %}>CHANGED</option>
+      </select>
+    </div>
+    <div>
+      <label class="form-label">Risiko</label>
+      <select name="risk" class="form-input">
+        <option value="">Semua</option>
+        {% for level in ['LOW','MEDIUM','HIGH','CRITICAL'] %}<option value="{{ level }}" {% if risk == level %}selected{% endif %}>{{ level }}</option>{% endfor %}
+      </select>
+    </div>
+    <button class="btn-sm btn-primary" type="submit">Filter</button>
+    <a href="{{ url_for('checks.index') }}" class="btn-sm btn-outline">Reset</a>
+  </form>
+
+  <div class="card overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="table-card">
+        <thead class="bg-slate-50 dark:bg-slate-800/60 text-left text-[11px] uppercase tracking-wide text-slate-500">
+          <tr><th class="px-4 py-3">Waktu</th><th class="px-4 py-3">Perangkat</th><th class="px-4 py-3">Status</th><th class="px-4 py-3">Risiko</th><th class="px-4 py-3">Perubahan</th><th class="px-4 py-3">Sumber</th><th class="px-4 py-3">Hash</th><th class="px-4 py-3">Aksi</th></tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
+          {% for c in checks %}
+          <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+            <td class="px-4 py-3 text-xs text-slate-500">{{ c.created_at|fmt_dt }}<br />{{ c.checked_by }}</td>
+            <td class="px-4 py-3"><a class="text-teal-700 dark:text-teal-300" href="{{ url_for('devices.detail', device_id=c.device_id) }}">{{ c.device.name }}</a></td>
+            <td class="px-4 py-3"><span class="status-badge {{ 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' if c.status == 'OK' else 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300' }}">{{ c.status }}</span></td>
+            <td class="px-4 py-3">{{ risk_badge(c.highest_risk) }}</td>
+            <td class="px-4 py-3 font-semibold">{{ c.change_count }}</td>
+            <td class="px-4 py-3 text-xs">{{ c.source }}</td>
+            <td class="px-4 py-3"><span class="hash">{{ c.short_hash }}…</span></td>
+            <td class="px-4 py-3"><a href="{{ url_for('checks.detail', check_id=c.id) }}" class="btn-sm btn-secondary">Detail</a></td>
+          </tr>
+          {% else %}
+          <tr><td colspan="8">{{ empty_state('Belum ada snapshot konfigurasi.') }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {{ render_pagination(pagination) }}
+  </div>
+</div>
+{% endblock %}

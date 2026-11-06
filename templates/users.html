@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import empty_state %}
+{% block title %}Pengguna{% endblock %}
+{% block page_title %}User Management{% endblock %}
+{% block content %}
+<div class="space-y-5">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h2 class="text-lg font-semibold">Pengguna & Peran</h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400">Auditor read-only, operator menangani insiden, admin mengelola sistem.</p>
+    </div>
+    <a href="{{ url_for('users.new') }}" class="btn-sm btn-primary">+ Tambah Pengguna</a>
+  </div>
+
+  <div class="card overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="table-card">
+        <thead class="bg-slate-50 dark:bg-slate-800/60 text-left text-[11px] uppercase tracking-wide text-slate-500">
+          <tr><th class="px-4 py-3">Username</th><th class="px-4 py-3">Email</th><th class="px-4 py-3">Role</th><th class="px-4 py-3">Status</th><th class="px-4 py-3">Login Terakhir</th><th class="px-4 py-3">Aksi</th></tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
+          {% for u in users %}
+          <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+            <td class="px-4 py-3 font-medium">{{ u.username }}</td>
+            <td class="px-4 py-3 text-xs">{{ u.email or '—' }}</td>
+            <td class="px-4 py-3"><span class="status-badge bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">{{ role_labels.get(u.role, u.role) }}</span></td>
+            <td class="px-4 py-3"><span class="status-badge {{ 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' if u.active else 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300' }}">{{ 'AKTIF' if u.active else 'NONAKTIF' }}</span></td>
+            <td class="px-4 py-3 text-xs text-slate-500">{{ u.last_login|fmt_dt }}</td>
+            <td class="px-4 py-3"><a href="{{ url_for('users.edit', user_id=u.id) }}" class="btn-sm btn-secondary">Edit</a></td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6">{{ empty_state('Belum ada pengguna.') }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

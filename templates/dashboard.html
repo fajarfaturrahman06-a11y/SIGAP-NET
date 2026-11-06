@@ -1,0 +1,253 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import risk_badge, incident_badge, empty_state, csrf_field %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard Monitoring{% endblock %}
+{% block content %}
+<div class="space-y-6">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h2 class="text-lg font-semibold">Ringkasan Integritas Jaringan</h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400">
+        Deteksi perubahan, analisis risiko, dan status penanganan insiden.
+      </p>
+    </div>
+    {% if can_manage %}
+    <a href="{{ url_for('checks.new') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white text-sm font-semibold rounded-lg transition">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+      Periksa Konfigurasi
+    </a>
+    {% endif %}
+  </div>
+
+  <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+    <div class="card p-4">
+      <p class="text-[11px] uppercase tracking-wider text-slate-500">Perangkat</p>
+      <p class="text-2xl font-bold mt-1">{{ stats.devices }}</p>
+      <p class="text-xs text-slate-400 mt-1">{{ stats.monitored }} dipantau aktif</p>
+    </div>
+    <div class="card p-4">
+      <p class="text-[11px] uppercase tracking-wider text-slate-500">Perubahan</p>
+      <p class="text-2xl font-bold mt-1 text-amber-600 dark:text-amber-400">{{ stats.changes }}</p>
+      <p class="text-xs text-slate-400 mt-1">parameter berubah</p>
+    </div>
+    <div class="card p-4">
+      <p class="text-[11px] uppercase tracking-wider text-slate-500">Risiko Tinggi</p>
+      <p class="text-2xl font-bold mt-1 text-orange-600 dark:text-orange-400">{{ stats.high_risk }}</p>
+      <p class="text-xs text-slate-400 mt-1">HIGH + CRITICAL</p>
+    </div>
+    <div class="card p-4">
+      <p class="text-[11px] uppercase tracking-wider text-slate-500">Insiden Terbuka</p>
+      <p class="text-2xl font-bold mt-1 text-red-600 dark:text-red-400">{{ stats.open_incidents }}</p>
+      <p class="text-xs text-slate-400 mt-1">belum selesai</p>
+    </div>
+    <div class="card p-4">
+      <p class="text-[11px] uppercase tracking-wider text-slate-500">Konfigurasi Utuh</p>
+      <p class="text-2xl font-bold mt-1 text-teal-600 dark:text-teal-400">{{ stats.intact }}</p>
+      <p class="text-xs text-slate-400 mt-1">{{ stats.drift }} drift · {{ stats.not_checked }} belum dicek</p>
+    </div>
+    <div class="card p-4">
+      <p class="text-[11px] uppercase tracking-wider text-slate-500">Status Integritas</p>
+      {% if stats.integrity_pct is not none %}
+      <p class="text-2xl font-bold mt-1 {{ 'text-teal-600 dark:text-teal-400' if stats.integrity_pct >= 80 else 'text-amber-600 dark:text-amber-400' }}">{{ stats.integrity_pct }}%</p>
+      <div class="mt-2 h-1.5 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+        <div class="h-full rounded-full {{ 'bg-teal-500' if stats.integrity_pct >= 80 else 'bg-amber-500' }}" style="width: {{ stats.integrity_pct }}%"></div>
+      </div>
+      {% else %}
+      <p class="text-2xl font-bold mt-1 text-slate-400">—</p>
+      <p class="text-xs text-slate-400 mt-1">belum ada baseline</p>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if can_manage %}
+  <div class="card p-4">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h3 class="font-semibold text-sm">Simulation Mode</h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400">Jalankan skenario demo end-to-end: snapshot → SHA-256 → diff → risiko → insiden.</p>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        {% for s in scenarios %}
+        <form method="POST" action="{{ url_for('simulation.run', scenario=s.key) }}" data-confirm="Jalankan {{ s.title }}?">
+          {{ csrf_field() }}
+          <button type="submit" class="btn-sm {{ 'btn-primary' if s.key == 'normal' else 'btn-secondary' }}">{{ s.title.split('—')[0].strip() }}</button>
+        </form>
+        {% endfor %}
+        {% if is_admin %}
+        <form method="POST" action="{{ url_for('simulation.reset') }}" data-confirm="Reset data demo? Baseline, snapshot, dan insiden demo akan dihapus. Audit trail tetap tersimpan.">
+          {{ csrf_field() }}
+          <button type="submit" class="btn-sm btn-outline">Reset Demo</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+    <div class="card p-5 xl:col-span-2">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-semibold text-sm">Perubahan Konfigurasi — 14 Hari</h3>
+        <div class="flex items-center gap-3 text-[11px] text-slate-500">
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-teal-500"></span>Perubahan</span>
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-orange-500"></span>Risiko tinggi</span>
+        </div>
+      </div>
+      <div class="h-64"><canvas id="changesChart"></canvas></div>
+    </div>
+    <div class="card p-5">
+      <h3 class="font-semibold text-sm mb-4">Distribusi Tingkat Risiko</h3>
+      <div class="h-52"><canvas id="riskChart"></canvas></div>
+      <div class="grid grid-cols-2 gap-2 mt-4 text-xs">
+        {% for level in ['LOW','MEDIUM','HIGH','CRITICAL'] %}
+        <div class="flex items-center justify-between rounded-lg bg-slate-50 dark:bg-slate-800/60 px-2.5 py-1.5">
+          <span class="flex items-center gap-1.5">{{ risk_badge(level) }}</span>
+          <span class="font-semibold">{{ risk_dist[level] }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+    <div class="card overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+        <h3 class="font-semibold text-sm">Pemeriksaan Terbaru</h3>
+        <a href="{{ url_for('checks.index') }}" class="text-xs text-teal-600 dark:text-teal-400 hover:underline">Lihat semua →</a>
+      </div>
+      <div class="divide-y divide-slate-100 dark:divide-slate-800">
+        {% for c in recent_checks %}
+        <a href="{{ url_for('checks.detail', check_id=c.id) }}" class="block px-5 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/40">
+          <div class="flex items-center justify-between gap-3">
+            <div class="min-w-0">
+              <p class="text-sm font-medium truncate">{{ c.device.name }}</p>
+              <p class="text-[11px] text-slate-400">{{ c.created_at|fmt_dt }} · {{ c.source }} · {{ c.checked_by }}</p>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              {% if c.status == 'OK' %}
+              <span class="status-badge bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">INTACT</span>
+              {% else %}
+              {{ risk_badge(c.highest_risk) }}
+              <span class="text-xs text-slate-500">{{ c.change_count }} chg</span>
+              {% endif %}
+            </div>
+          </div>
+        </a>
+        {% else %}
+        {{ empty_state('Belum ada pemeriksaan. Tambahkan perangkat dan baseline.') }}
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="card overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+        <h3 class="font-semibold text-sm">Insiden Terbaru</h3>
+        <a href="{{ url_for('incidents.index') }}" class="text-xs text-teal-600 dark:text-teal-400 hover:underline">Lihat semua →</a>
+      </div>
+      <div class="divide-y divide-slate-100 dark:divide-slate-800">
+        {% for i in recent_incidents %}
+        <a href="{{ url_for('incidents.detail', incident_id=i.id) }}" class="block px-5 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/40">
+          <div class="flex items-center justify-between gap-3">
+            <div class="min-w-0">
+              <p class="text-sm font-medium truncate">{{ i.code }} · {{ i.device.name }}</p>
+              <p class="text-[11px] text-slate-400">{{ i.detected_at|fmt_dt }} · {{ i.title }}</p>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              {{ risk_badge(i.severity) }}
+              {{ incident_badge(i.status) }}
+            </div>
+          </div>
+        </a>
+        {% else %}
+        {{ empty_state('Tidak ada insiden.') }}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="card overflow-hidden">
+    <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+      <h3 class="font-semibold text-sm">Aktivitas Keamanan Terbaru</h3>
+      {% if is_admin or is_auditor %}
+      <a href="{{ url_for('audit_trail.index') }}" class="text-xs text-teal-600 dark:text-teal-400 hover:underline">Audit trail →</a>
+      {% endif %}
+    </div>
+    <div class="divide-y divide-slate-100 dark:divide-slate-800">
+      {% for a in activity %}
+      <div class="px-5 py-3 flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-sm font-medium">{{ a.action }}</span>
+            <span class="text-[11px] text-slate-400">{{ a.username }}{% if a.role %} · {{ a.role }}{% endif %}</span>
+            {% if a.device_name %}<span class="text-[11px] text-slate-400">· {{ a.device_name }}</span>{% endif %}
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">{{ a.detail }}</p>
+        </div>
+        <div class="text-right shrink-0">
+          <span class="status-badge {{ 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' if a.result in ('SUCCESS','OK') else 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300' }}">{{ a.result }}</span>
+          <p class="text-[10px] text-slate-400 mt-1">{{ a.created_at|fmt_dt }}</p>
+        </div>
+      </div>
+      {% else %}
+      {{ empty_state('Belum ada aktivitas.') }}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+  const dark = document.documentElement.classList.contains('dark');
+  const grid = dark ? 'rgba(148,163,184,0.15)' : 'rgba(100,116,139,0.15)';
+  const tick = dark ? '#94a3b8' : '#64748b';
+
+  const changesEl = document.getElementById('changesChart');
+  if (changesEl && window.Chart) {
+    new Chart(changesEl, {
+      type: 'line',
+      data: {
+        labels: {{ chart_labels|tojson }},
+        datasets: [
+          { label: 'Perubahan', data: {{ chart_changes|tojson }}, borderColor: '#14b8a6',
+            backgroundColor: 'rgba(20,184,166,0.12)', fill: true, tension: 0.35,
+            pointRadius: 2, borderWidth: 2 },
+          { label: 'Risiko tinggi', data: {{ chart_high|tojson }}, borderColor: '#f97316',
+            backgroundColor: 'rgba(249,115,22,0.10)', fill: true, tension: 0.35,
+            pointRadius: 2, borderWidth: 2 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: grid }, ticks: { color: tick, maxRotation: 0, autoSkip: true, maxTicksLimit: 7 } },
+          y: { beginAtZero: true, grid: { color: grid }, ticks: { color: tick, precision: 0 } }
+        }
+      }
+    });
+  }
+
+  const riskEl = document.getElementById('riskChart');
+  if (riskEl && window.Chart) {
+    new Chart(riskEl, {
+      type: 'doughnut',
+      data: {
+        labels: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'],
+        datasets: [{
+          data: [{{ risk_dist.LOW }}, {{ risk_dist.MEDIUM }}, {{ risk_dist.HIGH }}, {{ risk_dist.CRITICAL }}],
+          backgroundColor: ['#14b8a6', '#f59e0b', '#f97316', '#ef4444'],
+          borderWidth: 0, hoverOffset: 4
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '68%',
+        plugins: { legend: { display: false } }
+      }
+    });
+  }
+})();
+</script>
+{% endblock %}

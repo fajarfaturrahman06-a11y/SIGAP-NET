@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import integrity_badge, empty_state %}
+{% block title %}Perangkat{% endblock %}
+{% block page_title %}Manajemen Perangkat{% endblock %}
+{% block content %}
+<div class="space-y-5">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h2 class="text-lg font-semibold">Perangkat Termonitor</h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400">Inventaris perangkat dan status integritas konfigurasi.</p>
+    </div>
+    {% if is_admin %}
+    <a href="{{ url_for('devices.new') }}" class="btn-sm btn-primary">+ Tambah Perangkat</a>
+    {% endif %}
+  </div>
+
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="card p-4"><p class="text-[11px] uppercase text-slate-500">Total</p><p class="text-2xl font-bold">{{ stats.total }}</p></div>
+    <div class="card p-4"><p class="text-[11px] uppercase text-slate-500">Dipantau</p><p class="text-2xl font-bold text-teal-600">{{ stats.monitored }}</p></div>
+    <div class="card p-4"><p class="text-[11px] uppercase text-slate-500">Online</p><p class="text-2xl font-bold text-emerald-600">{{ stats.online }}</p></div>
+    <div class="card p-4"><p class="text-[11px] uppercase text-slate-500">Drift</p><p class="text-2xl font-bold text-red-600">{{ stats.drift }}</p></div>
+  </div>
+
+  <form method="GET" class="card p-4 flex flex-wrap items-end gap-3">
+    <div class="flex-1 min-w-[200px]">
+      <label class="form-label">Cari</label>
+      <input type="text" name="q" value="{{ q }}" placeholder="Nama, IP, lokasi" class="form-input" />
+    </div>
+    <div>
+      <label class="form-label">Status</label>
+      <select name="status" class="form-input">
+        <option value="">Semua</option>
+        {% for value in ['ONLINE','OFFLINE','UNKNOWN','ERROR'] %}
+        <option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ value }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button class="btn-sm btn-primary" type="submit">Filter</button>
+    <a href="{{ url_for('devices.index') }}" class="btn-sm btn-outline">Reset</a>
+  </form>
+
+  <div class="card overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="table-card">
+        <thead class="bg-slate-50 dark:bg-slate-800/60 text-left text-[11px] uppercase tracking-wide text-slate-500">
+          <tr>
+            <th class="px-4 py-3">Perangkat</th>
+            <th class="px-4 py-3">Alamat</th>
+            <th class="px-4 py-3">Tipe</th>
+            <th class="px-4 py-3">Status</th>
+            <th class="px-4 py-3">Integritas</th>
+            <th class="px-4 py-3">Pemantauan</th>
+            <th class="px-4 py-3">Aksi</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
+          {% for d in devices %}
+          <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+            <td class="px-4 py-3">
+              <a href="{{ url_for('devices.detail', device_id=d.id) }}" class="font-medium text-teal-700 dark:text-teal-300 hover:underline">{{ d.name }}</a>
+              <p class="text-[11px] text-slate-400">{{ d.location or '—' }}</p>
+            </td>
+            <td class="px-4 py-3 font-mono text-xs">{{ d.ip_address }}</td>
+            <td class="px-4 py-3 capitalize">{{ d.device_type }}</td>
+            <td class="px-4 py-3">
+              <span class="status-badge {{ 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' if d.status == 'ONLINE' else 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300' }}">{{ d.status }}</span>
+            </td>
+            <td class="px-4 py-3">{{ integrity_badge(d.integrity_state) }}</td>
+            <td class="px-4 py-3">
+              <span class="status-badge {{ 'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300' if d.monitoring_enabled else 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400' }}">{{ 'AKTIF' if d.monitoring_enabled else 'NONAKTIF' }}</span>
+            </td>
+            <td class="px-4 py-3">
+              <a href="{{ url_for('devices.detail', device_id=d.id) }}" class="btn-sm btn-secondary">Detail</a>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7">{{ empty_state('Belum ada perangkat. Tambahkan perangkat untuk mulai memantau.') }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import empty_state, render_pagination %}
+{% block title %}Audit Trail{% endblock %}
+{% block page_title %}Audit Trail{% endblock %}
+{% block content %}
+<div class="space-y-5">
+  <div>
+    <h2 class="text-lg font-semibold">Jejak Audit Append-Only</h2>
+    <p class="text-sm text-slate-500 dark:text-slate-400">Catatan aktivitas tidak dapat diubah atau dihapus melalui aplikasi.</p>
+  </div>
+
+  <form method="GET" class="card p-4 grid sm:grid-cols-2 lg:grid-cols-6 gap-3 items-end">
+    <div class="lg:col-span-2">
+      <label class="form-label">Cari</label>
+      <input type="text" name="q" value="{{ q }}" class="form-input" placeholder="Detail, perangkat, objek" />
+    </div>
+    <div>
+      <label class="form-label">Aksi</label>
+      <select name="action" class="form-input">
+        <option value="">Semua</option>
+        {% for a in actions %}<option value="{{ a }}" {% if action == a %}selected{% endif %}>{{ a }}</option>{% endfor %}
+      </select>
+    </div>
+    <div>
+      <label class="form-label">Username</label>
+      <input type="text" name="username" value="{{ username }}" class="form-input" />
+    </div>
+    <div>
+      <label class="form-label">Dari</label>
+      <input type="date" name="date_from" value="{{ date_from }}" class="form-input" />
+    </div>
+    <div>
+      <label class="form-label">Sampai</label>
+      <input type="date" name="date_to" value="{{ date_to }}" class="form-input" />
+    </div>
+    <div class="flex gap-2 sm:col-span-2 lg:col-span-6">
+      <button class="btn-sm btn-primary" type="submit">Filter</button>
+      <a href="{{ url_for('audit_trail.index') }}" class="btn-sm btn-outline">Reset</a>
+    </div>
+  </form>
+
+  <div class="card overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="table-card">
+        <thead class="bg-slate-50 dark:bg-slate-800/60 text-left text-[11px] uppercase tracking-wide text-slate-500">
+          <tr><th class="px-4 py-3">Waktu</th><th class="px-4 py-3">Aktor</th><th class="px-4 py-3">Aksi</th><th class="px-4 py-3">Objek</th><th class="px-4 py-3">Detail</th><th class="px-4 py-3">Hasil</th><th class="px-4 py-3">IP</th></tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
+          {% for log in logs %}
+          <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 align-top">
+            <td class="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">{{ log.created_at|fmt_dt }}</td>
+            <td class="px-4 py-3 text-xs">{{ log.username }}{% if log.role %}<br /><span class="text-slate-400">{{ log.role }}</span>{% endif %}</td>
+            <td class="px-4 py-3 font-medium text-xs">{{ log.action }}</td>
+            <td class="px-4 py-3 text-xs">{{ log.object_type or '—' }}{% if log.object_id %} #{{ log.object_id }}{% endif %}{% if log.device_name %}<br /><span class="text-slate-400">{{ log.device_name }}</span>{% endif %}</td>
+            <td class="px-4 py-3 text-xs max-w-md break-words">{{ log.detail or '—' }}</td>
+            <td class="px-4 py-3"><span class="status-badge {{ 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' if log.result == 'SUCCESS' else 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300' }}">{{ log.result }}</span></td>
+            <td class="px-4 py-3 text-xs text-slate-500">{{ log.ip_address or '—' }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7">{{ empty_state('Tidak ada log sesuai filter.') }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {{ render_pagination(pagination) }}
+  </div>
+</div>
+{% endblock %}

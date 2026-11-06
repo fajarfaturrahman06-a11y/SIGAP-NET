@@ -1,0 +1,51 @@
+# Secrets and local configuration
+.env
+.env.*
+*.pem
+*.key
+.secret_key
+.encryption_key
+known_hosts
+
+# Local data and runtime state
+data/
+backups/
+logs/
+*.db
+*.sqlite
+*.sqlite3
+migrations/
+
+# Python and test caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+.venv/
+venv/
+ENV/
+
+# VCS and IDE
+.git/
+.gitignore
+.vscode/
+.idea/
+
+# Tests and docs are not needed in the runtime image
+tests/
+pytest.ini
+requirements-dev.txt
+README.md
+Dockerfile-backup
+docker-compose.yml-backup
+entrypoint.sh-backup
+
+# Runtime files
+*.log
+*.sqlite-*
+*.db-*
+instance/

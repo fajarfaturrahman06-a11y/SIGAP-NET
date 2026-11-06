@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import csrf_field %}
+{% block title %}{{ 'Edit' if is_edit else 'Tambah' }} Perangkat{% endblock %}
+{% block page_title %}{{ 'Edit Perangkat' if is_edit else 'Tambah Perangkat' }}{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto card p-6">
+  <div class="mb-5">
+    <h2 class="text-lg font-semibold">{{ 'Edit' if is_edit else 'Perangkat Baru' }}</h2>
+    <p class="text-sm text-slate-500 dark:text-slate-400">Adapter simulasi tidak menghubungi perangkat nyata.</p>
+  </div>
+  <form method="POST" action="{{ url_for('devices.edit', device_id=device_id) if is_edit else url_for('devices.new') }}" class="space-y-4">
+    {{ csrf_field() }}
+    <div class="grid sm:grid-cols-2 gap-4">
+      <div>
+        <label class="form-label">Nama perangkat *</label>
+        <input type="text" name="name" required maxlength="100" class="form-input" value="{{ device.name if device else '' }}" />
+      </div>
+      <div>
+        <label class="form-label">IP / Hostname *</label>
+        <input type="text" name="ip_address" required maxlength="120" class="form-input" value="{{ device.ip_address if device else '' }}" />
+      </div>
+      <div>
+        <label class="form-label">Jenis</label>
+        <select name="device_type" class="form-input">
+          {% for t in device_types %}
+          <option value="{{ t }}" {% if device and device.device_type == t %}selected{% endif %}>{{ t }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Adapter</label>
+        <select name="adapter" class="form-input">
+          {% for a in adapters %}
+          <option value="{{ a }}" {% if device and device.adapter == a %}selected{% endif %}>{{ a }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Lokasi</label>
+        <input type="text" name="location" maxlength="120" class="form-input" value="{{ device.location if device else '' }}" />
+      </div>
+      <div>
+        <label class="form-label">Vendor</label>
+        <input type="text" name="vendor" maxlength="80" class="form-input" value="{{ device.vendor if device else '' }}" />
+      </div>
+      <div>
+        <label class="form-label">Model</label>
+        <input type="text" name="model" maxlength="80" class="form-input" value="{{ device.model if device else '' }}" />
+      </div>
+      <div>
+        <label class="form-label">Router MikroTik tertaut</label>
+        <select name="router_id" class="form-input">
+          <option value="">— tidak ada —</option>
+          {% for r in routers %}
+          <option value="{{ r.id }}" {% if device and device.router_id == r.id %}selected{% endif %}>{{ r.name }} ({{ r.host }})</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div>
+      <label class="form-label">Deskripsi</label>
+      <textarea name="description" rows="3" maxlength="2000" class="form-input">{{ device.description if device else '' }}</textarea>
+    </div>
+    <div>
+      <label class="form-label">Konfigurasi awal (adapter simulasi)</label>
+      <textarea name="lab_config" rows="10" class="form-input font-mono text-xs" placeholder="Kosongkan untuk memakai baseline lab bawaan.">{{ device.lab_config if is_edit and device else '' }}</textarea>
+      <p class="text-[11px] text-slate-400 mt-1">Hanya dipakai untuk simulasi; tidak dieksekusi pada perangkat nyata.</p>
+    </div>
+    <label class="flex items-center gap-2 text-sm">
+      <input type="checkbox" name="monitoring_enabled" value="1" {% if (device.monitoring_enabled if device else true) %}checked{% endif %} />
+      Aktifkan pemantauan
+    </label>
+    <div class="flex items-center gap-3 pt-2">
+      <button type="submit" class="px-5 py-2 bg-teal-600 hover:bg-teal-500 text-white text-sm font-semibold rounded-lg">{{ 'Simpan Perubahan' if is_edit else 'Tambah Perangkat' }}</button>
+      <a href="{{ url_for('devices.detail', device_id=device_id) if is_edit else url_for('devices.index') }}" class="px-5 py-2 border border-slate-300 dark:border-slate-600 text-sm font-semibold rounded-lg">Batal</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

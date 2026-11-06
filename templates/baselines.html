@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import empty_state, render_pagination %}
+{% block title %}Baseline{% endblock %}
+{% block page_title %}Configuration Baseline{% endblock %}
+{% block content %}
+<div class="space-y-5">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h2 class="text-lg font-semibold">Baseline Konfigurasi</h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400">Versi acuan yang digunakan untuk verifikasi SHA-256 dan deteksi drift.</p>
+    </div>
+    {% if is_admin and device_id %}
+    <a href="{{ url_for('baselines.new_for_device', device_id=device_id) }}" class="btn-sm btn-primary">+ Baseline Baru</a>
+    {% endif %}
+  </div>
+
+  <form method="GET" class="card p-4 flex flex-wrap items-end gap-3">
+    <div class="min-w-[220px]">
+      <label class="form-label">Perangkat</label>
+      <select name="device" class="form-input">
+        <option value="">Semua perangkat</option>
+        {% for d in devices %}
+        <option value="{{ d.id }}" {% if device_id == d.id %}selected{% endif %}>{{ d.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button class="btn-sm btn-primary" type="submit">Filter</button>
+    <a href="{{ url_for('baselines.index') }}" class="btn-sm btn-outline">Reset</a>
+  </form>
+
+  <div class="card overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="table-card">
+        <thead class="bg-slate-50 dark:bg-slate-800/60 text-left text-[11px] uppercase tracking-wide text-slate-500">
+          <tr><th class="px-4 py-3">Perangkat</th><th class="px-4 py-3">Versi</th><th class="px-4 py-3">Label</th><th class="px-4 py-3">SHA-256</th><th class="px-4 py-3">Status</th><th class="px-4 py-3">Dibuat</th><th class="px-4 py-3">Aksi</th></tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
+          {% for b in baselines %}
+          <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+            <td class="px-4 py-3"><a class="text-teal-700 dark:text-teal-300 hover:underline" href="{{ url_for('devices.detail', device_id=b.device_id) }}">{{ b.device.name }}</a></td>
+            <td class="px-4 py-3 font-semibold">{{ b.version_label }}</td>
+            <td class="px-4 py-3">{{ b.label or '—' }}</td>
+            <td class="px-4 py-3"><span class="hash">{{ b.short_hash }}…</span></td>
+            <td class="px-4 py-3">
+              <span class="status-badge {{ 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' if b.is_active else 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400' }}">{{ 'AKTIF' if b.is_active else 'ARSIP' }}</span>
+            </td>
+            <td class="px-4 py-3 text-xs text-slate-500">{{ b.created_at|fmt_dt }}<br />{{ b.created_by }}</td>
+            <td class="px-4 py-3"><a href="{{ url_for('baselines.detail', baseline_id=b.id) }}" class="btn-sm btn-secondary">Detail</a></td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7">{{ empty_state('Belum ada baseline. Pilih perangkat lalu buat baseline baru.') }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {{ render_pagination(pagination) }}
+  </div>
+</div>
+{% endblock %}

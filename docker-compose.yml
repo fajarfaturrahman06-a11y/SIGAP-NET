@@ -1,0 +1,84 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: mikrobackup-db
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+
+    volumes:
+      - mikrobackup_db_data:/var/lib/mysql
+
+    # no expose MySQL ke host
+    # ports:
+    #   - "3306:3306"
+
+    networks:
+      - mikrobackup-net
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -h 127.0.0.1 -u root -p\"$${MYSQL_ROOT_PASSWORD}\" --silent"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  web:
+    build: .
+    container_name: mikrobackup-app
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+    env_file:
+      - .env
+
+    ports:
+      - "8500:5000"
+
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      SECRET_KEY: ${SECRET_KEY}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-}
+      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-false}
+      TRUST_PROXY_HEADERS: ${TRUST_PROXY_HEADERS:-false}
+      FLASK_ENV: ${FLASK_ENV:-production}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      SIGAP_ALLOW_REAL_RESTORE: ${SIGAP_ALLOW_REAL_RESTORE:-false}
+      SIGAP_SHOW_DEMO_ACCOUNTS: ${SIGAP_SHOW_DEMO_ACCOUNTS:-false}
+
+    volumes:
+      - ./backups:/app/backups
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - mikrobackup_migrations:/app/migrations
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+    networks:
+      - mikrobackup-net
+
+volumes:
+  mikrobackup_db_data:
+    name: mikrobackup_db_data
+  
+  mikrobackup_migrations:
+    name: mikrobackup_migrations
+
+networks:
+  mikrobackup-net:
+    name: mikrobackup-net
+    driver: bridge
