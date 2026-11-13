@@ -294,4 +294,4 @@ SIGAP-NET/
 
 ## Kredit
 
-Dikembangkan oleh **UKM KARTIKA CYBER — Politeknik Adisutjipto**, 2026.
+Dikembangkan oleh **UKM KARTIKA CYBER — Politeknik Angkatan Darat**, 2026.
