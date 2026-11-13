@@ -13,63 +13,61 @@ Fitur utama:
 
 ## Persyaratan
 
-- Docker dan Docker Compose untuk menjalankan dalam container
-- Python 3.12 untuk pengembangan lokal
-- MySQL 8.0 ketika dijalankan di luar Docker
+- Python 3.12 atau lebih baru untuk pengembangan lokal (dikembangkan dengan Python 3.13)
+- Tidak perlu Docker atau MySQL untuk pemakaian lokal — SQLite dipakai otomatis
+  di `data/sigapnet.db`
+- Docker dan Docker Compose tersedia jika ingin mode container (lihat bagian
+  Docker Compose)
 
 ## Screenshot Apps
 
-![Screen Capture](https://raw.githubusercontent.com/gagaltotal/mikrotik-backup/refs/heads/main/images/Screenshot%20from%202026-08-12%2014-28-18.png)
-
-![Screen Capture](https://raw.githubusercontent.com/gagaltotal/mikrotik-backup/refs/heads/main/images/Screenshot%20from%202026-08-12%2014-39-50.png)
-
-![Screen Capture](https://raw.githubusercontent.com/gagaltotal/mikrotik-backup/refs/heads/main/images/Screenshot%20from%202026-08-12%2014-40-05.png)
-
-![Screen Capture](https://raw.githubusercontent.com/gagaltotal/mikrotik-backup/refs/heads/main/images/Screenshot%20from%202026-08-12%2015-06-31.png)
-
-![Screen Capture](https://raw.githubusercontent.com/gagaltotal/mikrotik-backup/refs/heads/main/images/Screenshot%20from%202026-08-12%2015-06-42.png)
-
-![Screen Capture](https://raw.githubusercontent.com/gagaltotal/mikrotik-backup/refs/heads/main/images/Screenshot%20from%202026-08-12%2015-06-51.png)
+| | |
+|---|---|
+| ![Login](images/00_login.png) | ![Dashboard](images/01_dashboard.png) |
+| ![Perangkat](images/02_devices.png) | ![Change Detection](images/03_checks.png) |
+| ![Risk Assessment](images/04_risks.png) | ![Configuration Baseline](images/05_baselines.png) |
+| ![Incident Management](images/06_incidents.png) | ![Audit Trail](images/07_audit.png) |
+| ![Settings](images/08_settings.png) | ![User Management](images/09_users.png) |
 
 ## Instalasi dan pengembangan lokal
 
-1. Salin contoh konfigurasi environment:
-   
-   ```
-   cp .env-example .env
-   ```
+Langkah berikut sesuai dengan cara aplikasi ini dijalankan di mesin
+pengembangan (Windows, Python 3.13, tanpa virtual environment, SQLite).
 
-2. Ubah nilai dalam `.env` untuk lingkungan lokal Anda.
-
-3. Buat virtual environment dan pasang dependensi:
+1. Pasang dependensi:
    ```
-   python -m venv .venv
-   source .venv/bin/activate
-   pip install --upgrade pip
    pip install -r requirements.txt
    ```
 
-4. Inisialisasi database dan buat administrator dengan password kuat:
-
-   ``` 
-   flask init-db
-   flask create-admin admin 'Ganti-Dengan-Passw0rd!Kuat'
+2. Inisialisasi database (sekali saja — membuat `data/sigapnet.db`):
+   ```
+   python -m flask --app app init-db
    ```
 
-   Password minimal 12 karakter serta wajib memiliki huruf besar, huruf kecil,
-   angka, dan simbol. Tidak ada akun atau password default yang dibuat otomatis.
-
-5. Jalankan aplikasi untuk development:
+3. Buat administrator. Hanya username yang menjadi argumen; password diminta
+   tersembunyi saat perintah dijalankan (minimal 12 karakter, wajib huruf
+   besar + kecil + angka + simbol):
    ```
-   export FLASK_APP=app.py
-   export FLASK_ENV=development
-   flask run --host=0.0.0.0 --port=5000
+   python -m flask --app app create-admin sigapadmin
    ```
 
-6. Buka browser ke:
+   Password tidak bisa dipipe dari script di Windows — ketik langsung di konsol.
+   Tidak ada akun atau password default yang dibuat otomatis.
+
+4. Jalankan aplikasi:
    ```
-   http://localhost:5000
+   python -m flask --app app run --debug
    ```
+
+5. Buka browser ke `http://localhost:5000` dan login dengan akun yang dibuat
+   pada langkah 3.
+
+Catatan:
+
+- Tidak ada file `.env` yang dibutuhkan untuk pemakaian lokal; `DATABASE_URL`
+  tidak diset sehingga SQLite `data/sigapnet.db` dipakai.
+- Mode simulasi diaktifkan per perangkat lewat UI (adapter `simulation`),
+  bukan lewat variabel lingkungan `SIMULATION`.
 
 ## Pengujian
 
