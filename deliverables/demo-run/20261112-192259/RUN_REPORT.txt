@@ -1,0 +1,46 @@
+SIGAP-NET — LAPORAN RUN DEMO VIDEO OTOMATIS
+====================================================
+Waktu          : 2026-11-12 19:23:04
+Sistem         : Windows-11-10.0.26200-SP0
+
+STATUS DEPENDENSI (hasil pemeriksaan, bukan asumsi):
+  - python            : 3.13.7
+  - flask             : ADA
+  - flask_sqlalchemy  : ADA
+  - flask_migrate     : ADA
+  - apscheduler       : ADA
+  - paramiko          : ADA
+  - pytest            : ADA
+  - playwright        : TIDAK ADA
+  - ffmpeg            : TIDAK ADA
+  - browser           : C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe
+
+LANGKAH YANG DIJALANKAN:
+  1. login HTTP -> sukses
+  2. GET / -> OK
+  3. GET /devices -> OK
+  4. GET /checks -> OK
+  5. GET /risks -> OK
+  6. GET /baselines -> OK
+  7. GET /incidents -> OK
+  8. GET /audit -> OK
+  9. GET /settings -> OK
+  10. SIMULATION normal -> status 200
+  11. SIMULATION firewall -> status 200
+  12. SIMULATION ssh -> status 200
+  13. alur insiden & audit dikunjungi
+
+ISOLASI DATABASE:
+  - Aplikasi dijalankan dengan DATABASE_URL -> database demo terpisah di folder ini.
+  - Database utama hanya dibaca untuk verifikasi hash.
+  - Hash sebelum : 2c5869b4c595785cfc4e32b0e83d7f77ff375dc12d05e14b3d4e4c513952dbdc
+  - Hash sesudah : 2c5869b4c595785cfc4e32b0e83d7f77ff375dc12d05e14b3d4e4c513952dbdc
+  - Kesamaan     : SAMA (utuh)
+
+REKAMAN:
+  - Rekaman browser : TIDAK (Playwright tidak tersedia)
+  - Rekaman layar+audio (ffmpeg): TIDAK ADA
+  - Screenshot       : folder screenshots/ (diisi saat mode Playwright aktif)
+  - Log server       : ../server.log
+
+Catatan: tidak ada password/token yang disimpan pada laporan ini.

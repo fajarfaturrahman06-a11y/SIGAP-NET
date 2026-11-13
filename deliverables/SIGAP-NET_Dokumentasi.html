@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>SIGAP-NET — Dokumentasi Teknis &amp; Panduan Pengguna</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Segoe UI", "Inter", Arial, sans-serif;
+    color: #1c2430; margin: 0; font-size: 10.5pt; line-height: 1.6;
+    background: #ffffff;
+  }
+  h1, h2, h3, h4 { font-family: "Segoe UI", Arial, sans-serif; color: #0a2540; }
+  h2 {
+    font-size: 16pt; border-left: 6px solid #8a6d1f; padding-left: 10px;
+    margin-top: 34px; page-break-after: avoid;
+  }
+  h3 { font-size: 12.5pt; color: #14406b; margin-top: 22px; page-break-after: avoid; }
+  p { margin: 8px 0; text-align: justify; }
+  ul, ol { margin: 8px 0 8px 20px; padding-left: 6px; }
+  li { margin: 4px 0; }
+  code {
+    font-family: Consolas, "Courier New", monospace; background: #eef2f7;
+    padding: 1px 5px; border-radius: 3px; font-size: 9.5pt; color: #0a2540;
+  }
+  pre {
+    background: #0a2540; color: #e8eef6; padding: 12px 14px; border-radius: 6px;
+    font-family: Consolas, "Courier New", monospace; font-size: 9pt;
+    white-space: pre-wrap; word-break: break-word; page-break-inside: avoid;
+  }
+  pre code { background: none; color: inherit; padding: 0; }
+  table {
+    border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 9.5pt;
+    page-break-inside: avoid;
+  }
+  th, td { border: 1px solid #c8d2de; padding: 6px 9px; text-align: left; vertical-align: top; }
+  th { background: #0a2540; color: #ffffff; font-weight: 600; }
+  tr:nth-child(even) td { background: #f4f7fb; }
+  .badge {
+    display: inline-block; background: #8a6d1f; color: #fff; font-size: 8.5pt;
+    padding: 2px 9px; border-radius: 10px; font-weight: 600; letter-spacing: .5px;
+  }
+  .note {
+    background: #f6f9fc; border-left: 4px solid #14406b; padding: 10px 14px;
+    margin: 12px 0; font-size: 9.5pt; page-break-inside: avoid;
+  }
+  .warn {
+    background: #fdf6f0; border-left: 4px solid #b45309; padding: 10px 14px;
+    margin: 12px 0; font-size: 9.5pt; page-break-inside: avoid;
+  }
+  .ok { color: #15803d; font-weight: 600; }
+  .no { color: #b91c1c; font-weight: 600; }
+  .page-break { page-break-before: always; }
+
+  /* Cover */
+  .cover {
+    height: 96vh; min-height: 900px; background: linear-gradient(155deg, #071a30 0%, #0a2540 55%, #123a63 100%);
+    color: #fff; padding: 52px 46px; display: flex; flex-direction: column;
+    justify-content: space-between; page-break-after: always;
+  }
+  .cover .top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .crest {
+    border: 2px solid #c9a227; padding: 10px 18px; font-size: 9.5pt;
+    letter-spacing: 2px; text-transform: uppercase; color: #e9cf7a;
+  }
+  .cover .mid h1 { color: #fff; font-size: 44pt; margin: 0 0 6px; letter-spacing: 2px; }
+  .cover .mid h2 { color: #e9cf7a; font-size: 15pt; border: none; padding: 0; font-weight: 500; }
+  .cover .mid .sub { color: #b9c9dc; font-size: 11pt; margin-top: 16px; max-width: 620px; line-height: 1.7; }
+  .cover .meta { display: flex; gap: 34px; border-top: 1px solid rgba(233,207,122,.4); padding-top: 16px; }
+  .cover .meta div span { display: block; font-size: 8.5pt; color: #8fa7c2; text-transform: uppercase; letter-spacing: 1px; }
+  .cover .meta div b { font-size: 11pt; color: #fff; font-weight: 600; }
+  .grid-deco {
+    position: absolute; right: 46px; top: 120px; width: 240px; height: 240px;
+    border: 1px solid rgba(233,207,122,.25); border-radius: 50%;
+  }
+
+  .toc ol { font-size: 10.5pt; line-height: 2.1; }
+  .footer-note { font-size: 8.5pt; color: #64748b; border-top: 1px solid #dbe3ec; margin-top: 30px; padding-top: 8px; }
+  .arch {
+    background: #0a2540; color: #cfe1f5; font-family: Consolas, monospace;
+    font-size: 8.5pt; padding: 14px; border-radius: 6px; white-space: pre;
+    overflow: hidden; line-height: 1.45;
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ SAMPUL ============ -->
+<div class="cover">
+  <div class="top">
+    <div class="crest">UKM Kartika Cyber · POLTEKAD</div>
+    <div class="crest">Dokumentasi Teknis v1.0.0</div>
+  </div>
+  <div class="mid">
+    <h1>SIGAP-NET</h1>
+    <h2>Sistem Integritas Konfigurasi dan Respons Gangguan Jaringan</h2>
+    <div class="sub">
+      Platform manajemen backup konfigurasi router MikroTik dengan baseline integritas,
+      pemeriksaan SHA-256, deteksi drift, penilaian risiko, penanganan insiden berbasis
+      persetujuan, dan audit trail yang tidak dapat diubah (append-only).
+    </div>
+    <div style="margin-top:26px">
+      <span class="badge">KODE PROTEKSI JARINGAN</span>
+      <span class="badge" style="background:#14406b">DEFENSIVE SECURITY</span>
+      <span class="badge" style="background:#15803d">OPEN ARCHITECTURE</span>
+    </div>
+  </div>
+  <div class="meta">
+    <div><span> nama aplikasi</span><b>SIGAP-NET</b></div>
+    <div><span>versi</span><b>1.0.0</b></div>
+    <div><span>stack utama</span><b>Python · Flask · SQLAlchemy</b></div>
+    <div><span>tanggal dokumen</span><b>12 November 2026</b></div>
+  </div>
+</div>
+
+<!-- ============ DAFTAR ISI ============ -->
+<div class="toc">
+  <h2 style="margin-top:0">Daftar Isi</h2>
+  <ol>
+    <li>Deskripsi dan Tujuan SIGAP-NET</li>
+    <li>Latar Belakang Masalah</li>
+    <li>Solusi dan Fitur</li>
+    <li>Arsitektur Sistem</li>
+    <li>Teknologi yang Digunakan</li>
+    <li>Instalasi dan Konfigurasi</li>
+    <li>Panduan Penggunaan</li>
+    <li>Keamanan dan Pengujian</li>
+    <li>Batasan Sistem</li>
+    <li>Struktur Repositori</li>
+  </ol>
+  <div class="note">
+    <b>Cara membaca dokumen ini:</b> seluruh isi disusun dari hasil audit kode dan
+    dokumentasi repositori (README.md, HANDOFF.md, serta kode sumber). Klaim yang tidak
+    dapat diverifikasi dari implementasi tidak dicantumkan.
+  </div>
+</div>
+
+<!-- ============ 1 ============ -->
+<div class="page-break"></div>
+<h2>1. Deskripsi dan Tujuan SIGAP-NET</h2>
+<p>
+<b>SIGAP-NET</b> (<i>Sistem Integritas Konfigurasi dan Respons Gangguan Jaringan</i>)
+adalah aplikasi web berbasis Flask untuk mengelola backup konfigurasi router MikroTik
+sekaligus memantau integritas konfigurasi tersebut terhadap baseline yang ditetapkan.
+Nama resmi aplikasi dan variannya didefinisikan di <code>config.py</code>
+(<code>APP_NAME = 'SIGAP-NET'</code>, <code>APP_VERSION = '1.0.0'</code>).
+</p>
+
+<h3>1.1 Tujuan</h3>
+<ol>
+  <li><b>Tersedianya backup konfigurasi terpusat</b> — konfigurasi tiap router tersimpan
+      sebagai file dan tercatat di database, bukan terserak di lokal admin.</li>
+  <li><b>Deteksi perubahan tidak sah (drift)</b> — setiap konfigurasi diperiksa terhadap
+      baseline aktif menggunakan hash SHA-256 semantik dan diff berjenjang risiko.</li>
+  <li><b>Respons gangguan yang terkontrol</b> — perubahan berisiko tinggi memicu insiden,
+      dan pemulihan konfigurasi wajib melewati alur permintaan → persetujuan → eksekusi.</li>
+  <li><b>Jejak audit yang dapat dipertanggungjawabkan</b> — seluruh aksi penting tercatat
+      pada audit trail yang bersifat append-only (tidak bisa diubah/dihapus).</li>
+  <li><b>Pembatasan akses berbasis peran</b> — pemisahan hak antara admin, operator, dan
+      auditor agar tanggung jawab terpisah (segregation of duties).</li>
+</ol>
+
+<h3>1.2 Cakupan penggunaan</h3>
+<p>
+Dirancang untuk lingkungan laboratorium jaringan dan pendidikan (UKM Kartika Cyber,
+POLTEKAD), termasuk kebutuhan demonstrasi kompetisi keamanan siber defensif.
+Komunikasi SSH ke perangkat MikroTik dilakukan melalui <code>paramiko</code> dengan
+kebijakan <i>RejectPolicy</i> — koneksi ditolak bila sidik jari host belum dikenal.
+</p>
+
+<!-- ============ 2 ============ -->
+<h2>2. Latar Belakang Masalah</h2>
+<table>
+  <tr><th style="width:28%">Masalah</th><th>Dampak</th></tr>
+  <tr>
+    <td>Backup konfigurasi manual dan tersebar</td>
+    <td>Konfigurasi tersimpan di berbagai perangkat/lokal, sulit dipulihkan saat perangkat
+        rusak atau salah konfigurasi.</td>
+  </tr>
+  <tr>
+    <td>Tidak ada baseline resmi</td>
+    <td>Perubahan konfigurasi (oleh admin, penyusup, atau kesalahan manusia) tidak terdeteksi
+        karena tidak ada acuan perbandingan.</td>
+  </tr>
+  <tr>
+    <td>Perubahan berisiko tidak terklarifikasi</td>
+    <td>Firewall dinonaktifkan atau layanan akses (SSH) dibuka dapat lolos tanpa analisis
+        risiko dan tanpa insiden yang tercatat.</td>
+  </tr>
+  <tr>
+    <td>Pemulihan konfigurasi tanpa persetujuan</td>
+    <td>Risiko rollback yang justru memperburuk keadaan, serta tidak ada pemisahan kewenangan
+        antara pengusul dan penyetuju.</td>
+  </tr>
+  <tr>
+    <td>Audit trail yang mudah dimanipulasi</td>
+    <td>Log yang dapat diedit/dihapus tidak memiliki nilai bukti saat audit atau investigasi
+        insiden.</td>
+  </tr>
+  <tr>
+    <td>Akun dan sesi aplikasi lemah</td>
+    <td>Password default, tanpa pembatasan percobaan login, dan sesi lama yang masih sah
+        setelah password berubah.</td>
+  </tr>
+</table>
+
+<!-- ============ 3 ============ -->
+<h2>3. Solusi dan Fitur</h2>
+<p>Seluruh fitur di bawah ini teridentifikasi aktif pada kode sumber dan dicakup oleh suite pengujian.</p>
+
+<table>
+  <tr><th style="width:24%">Area</th><th>Fitur implementasi</th><th style="width:22%">Referensi kode</th></tr>
+  <tr>
+    <td><b>Backup &amp; Router</b></td>
+    <td>Kelola router, jadwal backup cron, backup manual, riwayat, dan unduhan file backup.
+        Koneksi SSH dengan verifikasi host key ketat.</td>
+    <td><code>app.py</code>, <code>mikrotik.py</code>, <code>scheduler.py</code></td>
+  </tr>
+  <tr>
+    <td><b>Baseline Integritas</b></td>
+    <td>Simpan baseline perangkat dengan versi unik, hash SHA-256, aktivasi baseline tunggal,
+        dan unduhan isi baseline.</td>
+    <td><code>routes/baselines.py</code>, <code>db.py</code></td>
+  </tr>
+  <tr>
+    <td><b>Pemeriksaan &amp; Deteksi Drift</b></td>
+    <td>Pemeriksaan manual/berjadwal, hash semantik yang stabil terhadap spasi &amp; urutan,
+        diff per blok konfigurasi, penilaian risiko otomatis per perubahan.</td>
+    <td><code>services/integrity.py</code>, <code>services/risk.py</code></td>
+  </tr>
+  <tr>
+    <td><b>Analisis Risiko</b></td>
+    <td>Level <code>LOW / MEDIUM / HIGH / CRITICAL</code>; contoh aturan: firewall dinonaktifkan
+        → <b>HIGH</b>, SSH diaktifkan → <b>HIGH</b>, perubahan catatan administratif → <b>LOW</b>.</td>
+    <td><code>services/risk.py</code></td>
+  </tr>
+  <tr>
+    <td><b>Manajemen Insiden</b></td>
+    <td>Insiden dibuat otomatis saat drift berisiko, siklus status, catatan, penugasan,
+        penggabungan insiden terbuka serupa, kode insiden berurutan.</td>
+    <td><code>services/monitoring.py</code>, <code>routes/incidents.py</code></td>
+  </tr>
+  <tr>
+    <td><b>Respons &amp; Pemulihan</b></td>
+    <td>Alur <i>request → approve → execute → rollback</i> dengan penguncian baris (row lock),
+        persetujuan diri untuk risiko tinggi diblokir, rollback diblokir bila konfigurasi telah
+        menyimpang, baseline yang dimanipulasi memblokir restore.</td>
+    <td><code>services/response.py</code></td>
+  </tr>
+  <tr>
+    <td><b>Mode Simulasi</b></td>
+    <td>Tiga skenario aman pada perangkat lab: (1) perubahan normal → LOW, (2) firewall
+        dinonaktifkan → HIGH + insiden, (3) SSH diaktifkan → HIGH + insiden; plus reset data
+        demo tanpa menghapus audit trail.</td>
+    <td><code>services/simulation.py</code></td>
+  </tr>
+  <tr>
+    <td><b>Audit Trail</b></td>
+    <td>Tabel <code>audit_log</code> append-only: event SQLAlchemy <code>before_update</code> dan
+        <code>before_delete</code> melempar error — baris tidak dapat diubah maupun dihapus,
+        termasuk lewat sesi aplikasi.</td>
+    <td><code>services/audit.py</code></td>
+  </tr>
+  <tr>
+    <td><b>RBAC</b></td>
+    <td>Tiga peran: <code>admin</code> (penuh), <code>operator</code> (operasional, tanpa
+        administrasi pengguna), <code>auditor</code> (hanya baca). Ditegakkan di layer backend
+        (<code>roles_required</code>), bukan hanya tampilan.</td>
+    <td><code>authz.py</code>, <code>routes/users.py</code></td>
+  </tr>
+  <tr>
+    <td><b>Monitoring Perangkat</b></td>
+    <td>Status perangkat, toggle monitoring, pemeriksaan status, adapter per perangkat
+        (<code>simulation</code> sebagai default).</td>
+    <td><code>routes/devices.py</code>, <code>services/adapters.py</code></td>
+  </tr>
+</table>
+
+<div class="note">
+<b>Fitur yang dinonaktifkan secara sengaja:</b> restore ke perangkat nyata diblokir
+(<code>SIGAP_ALLOW_REAL_RESTORE=false</code> dan belum diimplementasikan); hanya simulasi
+pemulihan yang tersedia. Tidak ada akun default yang dibuat otomatis.
+</div>
+
+<!-- ============ 4 ============ -->
+<div class="page-break"></div>
+<h2>4. Arsitektur Sistem</h2>
+<p>
+Arsitektur aplikasi web monolitik berlapis: antarmuka Jinja2 di browser, route Flask
+(memiliki 7 blueprint + route utama, total 55 route), layer layanan (services), model
+SQLAlchemy, dan penyimpanan SQLite (default) atau MySQL.
+</p>
+
+<div class="arch">┌────────────────────────────── BROWSER (UI Jinja2 + Tailwind-style CSS) ─────────────────────────────┐
+│  /login · / (dashboard) · /devices · /checks · /risks · /baselines · /incidents · /audit · /users      │
+│  /routers · /schedules · /history (modul backup klasik) · /settings                                    │
+└──────────────────────────────────────────────┬─────────────────────────────────────────────────────────┘
+                                               │  session cookie (HttpOnly, SameSite=Lax) + CSRF token
+                                               ▼
+┌────────────────────────────────── FLASK APPLICATION (app.py + routes/) ────────────────────────────────┐
+│  authz.py  : load_current_user · login_required · roles_required (admin/operator/auditor)             │
+│  csrf.py   : token CSRF kustom        ratelimit.py : throttling login berbasis database               │
+│  security.py: password policy · sanitasi filename · anti path-traversal · client IP                   │
+└──────────────────────────────────────────────┬─────────────────────────────────────────────────────────┘
+                                               ▼
+┌──────────────────────────────────────── SERVICES (services/) ─────────────────────────────────────────┐
+│  integrity.py  : parser konfigurasi · SHA-256 semantik · diff      (273 baris)                        │
+│  risk.py       : penilaian risiko LOW/MED/HIGH/CRITICAL           (212 baris)                         │
+│  monitoring.py : evaluasi konfigurasi · siklus insiden            (236 baris)                         │
+│  response.py   : request/approve/execute/rollback + row lock      (238 baris)                         │
+│  simulation.py : 3 skenario lab · reset data demo                 (103 baris)                         │
+│  audit.py      : audit append-only (before_update/before_delete diblokir)                              │
+│  adapters.py   : adapter perangkat (default: simulation)                                              │
+└──────────────────────────────────────────────┬─────────────────────────────────────────────────────────┘
+                                               ▼
+┌────────────────────────────── DATA (SQLAlchemy / Flask-Migrate · Alembic) ─────────────────────────────┐
+│  15 tabel: users · routers · backups · schedules · activity_log · devices · baselines                 │
+│  config_checks · config_changes · incidents · incident_events · response_actions                      │
+│  audit_log · app_settings · login_attempts                                                            │
+│  Penyimpanan: SQLite (data/sigapnet.db, default)  |  MySQL 8.0 (PyMySQL, via DATABASE_URL)            │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+┌── INTEGRASI EKSTERNAL ──────────────────────┐   ┌── SCHEDULER (APScheduler) ─────────────────────────┐
+│ SSH (paramiko) ke Router MikroTik           │   │ BackgroundScheduler + CronTrigger                  │
+│ · RejectPolicy: host key tak dikenal = tolak│   │ · leadership lock antar-worker                     │
+│ · known_hosts dari SSH_KNOWN_HOSTS_FILE     │   │ · watchdog proses · SCHEDULER_ENABLED              │
+│ · cadangan file backup: backups/            │   │ · job per jadwal (cron_expr)                       │
+└─────────────────────────────────────────────┘   └────────────────────────────────────────────────────┘</div>
+
+<h3>4.1 Alur deteksi gangguan (inti SIGAP-NET)</h3>
+<ol>
+  <li>Konfigurasi perangkat diperoleh (mode simulasi dari <code>lab_config</code>, atau via SSH untuk perangkat nyata).</li>
+  <li><code>services/integrity.py</code> mem-parse konfigurasi lalu menghitung hash SHA-256 semantik yang stabil terhadap spasi, kutip, dan urutan baris tertentu.</li>
+  <li>Konfigurasi dibandingkan dengan baseline aktif → daftar perubahan (<code>config_changes</code>).</li>
+  <li><code>services/risk.py</code> menilai tiap perubahan (mis. firewall dimatikan → HIGH) → status check <code>OK / CHANGED / DRIFT</code>.</li>
+  <li>Bila risiko memenuhi syarat, <code>services/monitoring.py</code> membuat/memperbarui insiden (insiden terbuka serupa digunakan ulang, tidak duplikat).</li>
+  <li>Operator mengajukan respons pemulihan; penyetujuan dan eksekusi dicatat; <code>services/audit.py</code> menyimpan jejaknya secara permanen.</li>
+</ol>
+
+<!-- ============ 5 ============ -->
+<h2>5. Teknologi yang Digunakan</h2>
+<table>
+  <tr><th style="width:26%">Komponen</th><th style="width:22%">Versi (requirements.txt)</th><th>Peran</th></tr>
+  <tr><td>Python</td><td>3.12 (target README) / 3.13.7 (lingkungan audit)</td><td>Bahasa runtime</td></tr>
+  <tr><td>Flask</td><td>3.1.3</td><td>Framework web, routing, sesi, CLI</td></tr>
+  <tr><td>Flask-SQLAlchemy</td><td>3.1.1</td><td>ORM dan lapisan basis data</td></tr>
+  <tr><td>Flask-Migrate</td><td>4.0.7</td><td>Migrasi skema (Alembic)</td></tr>
+  <tr><td>Werkzeug</td><td>3.1.9</td><td>Hash password PBKDF2-SHA256, util WSGI</td></tr>
+  <tr><td>APScheduler</td><td>3.10.4</td><td>Penjadwal backup (cron) + watchdog</td></tr>
+  <tr><td>Paramiko</td><td>5.1.0</td><td>Klien SSH ke router MikroTik</td></tr>
+  <tr><td>cryptography</td><td>50.0.2</td><td>Primitif kriptografi pendukung</td></tr>
+  <tr><td>PyMySQL</td><td>1.1.1</td><td>Driver MySQL untuk produksi</td></tr>
+  <tr><td>python-dotenv</td><td>1.2.4</td><td>Muat variabel <code>.env</code></td></tr>
+  <tr><td>gunicorn</td><td>22.0.0</td><td>WSGI server produksi (Linux)</td></tr>
+  <tr><td>pytest / pytest-cov / ruff</td><td>9.2.0 / 7.1.0 / 0.6.9</td><td>Pengujian, cakupan, dan lint (requirements-dev.txt)</td></tr>
+  <tr><td>SQLite / MySQL 8.0</td><td>bawaan / opsional</td><td>Penyimpanan data</td></tr>
+  <tr><td>Docker &amp; Docker Compose</td><td>opsional</td><td>Kontainerisasi (Dockerfile + docker-compose.yml tersedia)</td></tr>
+</table>
+
+<!-- ============ 6 ============ -->
+<div class="page-break"></div>
+<h2>6. Instalasi dan Konfigurasi</h2>
+
+<h3>6.1 Prasyarat</h3>
+<ul>
+  <li>Python 3.12 atau lebih baru (audit lingkungan: Python 3.13.7).</li>
+  <li>MySQL 8.0 bila tidak memakai SQLite default.</li>
+  <li>Docker &amp; Docker Compose (opsional, untuk deployment terkontainerisasi).</li>
+</ul>
+
+<h3>6.2 Instalasi lokal (development)</h3>
+<pre><code>cp .env-example .env
+python -m venv .venv
+.venv\Scripts\activate            # Windows
+pip install --upgrade pip
+pip install -r requirements.txt
+
+set FLASK_APP=app.py              # PowerShell: $env:FLASK_APP="app.py"
+set FLASK_ENV=development
+
+flask init-db                     # inisialisasi skema database
+flask create-admin admin          # password diminta interaktif (tidak dari argumen)</code></pre>
+
+<div class="warn">
+<b>Aturan password:</b> minimal 12 karakter, wajib huruf besar + huruf kecil + angka +
+simbol, tidak boleh berisi nama pengguna, dan tidak boleh termasuk daftar password umum
+(<code>security.py:176</code>). Password diminta tersembunyi (<i>hide input</i>) sehingga
+tidak masuk riwayat shell. <b>Tidak ada akun default</b> — aplikasi tidak membuat akun
+otomatis.
+</div>
+
+<h3>6.3 Menjalankan aplikasi</h3>
+<pre><code># Development
+flask run --host=0.0.0.0 --port=5000
+# akses: http://localhost:5000
+
+# Docker Compose (bila Docker tersedia)
+docker compose up -d --build
+# akses: http://localhost:5000 atau http://localhost:8500</code></pre>
+
+<h3>6.4 Variabel lingkungan penting</h3>
+<table>
+  <tr><th style="width:32%">Variabel</th><th>Fungsi dan nilai default</th></tr>
+  <tr><td><code>DATABASE_URL</code></td><td>URL SQLAlchemy. Default: SQLite <code>data/sigapnet.db</code></td></tr>
+  <tr><td><code>SECRET_KEY</code></td><td>Kunci sesi/CSRF. Bila kosong, dibuat otomatis pada file <code>.secret_key</code> dengan izin 600</td></tr>
+  <tr><td><code>SESSION_COOKIE_SECURE</code></td><td><code>true</code> bila memakai HTTPS (default <code>false</code>)</td></tr>
+  <tr><td><code>FLASK_ENV</code></td><td><code>production</code> / <code>development</code></td></tr>
+  <tr><td><code>LOGIN_MAX_ATTEMPTS</code> / <code>LOGIN_WINDOW_SECONDS</code></td><td>Default 5 percobaan per 300 detik (throttling login)</td></tr>
+  <tr><td><code>SCHEDULER_ENABLED</code></td><td><code>true</code> (default) — penjadwal backup aktif</td></tr>
+  <tr><td><code>SIGAP_SHOW_DEMO_ACCOUNTS</code></td><td><code>true</code> hanya untuk menampilkan kredensial demo di halaman login</td></tr>
+  <tr><td><code>SIGAP_SEED_DEMO_USERS</code></td><td>Dicadangkan; akun demo hanya dibuat lewat <code>flask seed-demo-users</code> eksplisit</td></tr>
+  <tr><td><code>SIGAP_ALLOW_REAL_RESTORE</code></td><td>Konon di <code>false</code>; restore perangkat nyata belum diimplementasikan dan tetap diblokir</td></tr>
+  <tr><td><code>SSH_KNOWN_HOSTS_FILE</code></td><td>Path file known_hosts untuk verifikasi host key SSH</td></tr>
+  <tr><td><code>TRUST_PROXY_HEADERS</code></td><td><code>true</code> hanya di belakang proxy tepercaya</td></tr>
+  <tr><td><code>MYSQL_DATABASE</code> / <code>MYSQL_USER</code> / <code>MYSQL_PASSWORD</code> / <code>MYSQL_ROOT_PASSWORD</code></td><td>Konfigurasi MySQL untuk Docker Compose</td></tr>
+</table>
+
+<h3>6.5 Perintah CLI tersedia</h3>
+<table>
+  <tr><th style="width:30%">Perintah</th><th>Fungsi</th></tr>
+  <tr><td><code>flask init-db</code></td><td>Membuat skema database (tanpa membuat user)</td></tr>
+  <tr><td><code>flask create-admin &lt;username&gt;</code></td><td>Membuat admin baru; password diminta interaktif; opsi <code>--role</code>, <code>--email</code></td></tr>
+  <tr><td><code>flask ensure-admin</code></td><td>Memastikan admin ada (berhenti bila username sudah terpakai)</td></tr>
+  <tr><td><code>flask seed-demo-users</code></td><td>Membuat akun demo admin/operator/auditor dengan password eksplisit</td></tr>
+  <tr><td><code>flask seed-demo</code></td><td>Menyiapkan data demo (perangkat lab + baseline)</td></tr>
+</table>
+
+<!-- ============ 7 ============ -->
+<h2>7. Panduan Penggunaan</h2>
+
+<h3>7.1 Menu aplikasi</h3>
+<table>
+  <tr><th style="width:26%">Menu</th><th>Isi dan aksi</th></tr>
+  <tr><td>Dashboard (<code>/</code>)</td><td>Statistik perangkat, monitoring, perubahan, risiko tinggi, insiden terbuka, rasio integritas (INTACT/DRIFT), grafik 14 hari, distribusi risiko, aktivitas audit terbaru, tombol 3 skenario simulasi</td></tr>
+  <tr><td>Devices</td><td>CRUD perangkat, detail, cek integritas, cek status, toggle monitoring, lihat konfigurasi</td></tr>
+  <tr><td>Checks</td><td>Riwayat pemeriksaan konfigurasi + detail diff dan unduhan snapshot</td></tr>
+  <tr><td>Risks</td><td>Daftar perubahan berdasarkan level risiko</td></tr>
+  <tr><td>Baselines</td><td>Daftar baseline, buat baseline baru dari snapshot, aktivasi, unduh</td></tr>
+  <tr><td>Incidents</td><td>Daftar &amp; detail insiden, ubah status, catatan, ajukan/persetujukan/eksekusi/rollback respons</td></tr>
+  <tr><td>Audit</td><td>Audit trail append-only dengan filter dan pencarian</td></tr>
+  <tr><td>Users</td><td>Manajemen pengguna &amp; peran (admin saja)</td></tr>
+  <tr><td>Settings</td><td>Pengaturan aplikasi + pusat simulasi (jalankan/reset skenario)</td></tr>
+  <tr><td>Routers / Schedules / History</td><td>Modul backup klasik: router MikroTik, jadwal cron, riwayat &amp; unduhan backup</td></tr>
+</table>
+
+<h3>7.2 Alur demonstrasi standar (mode simulasi, aman)</h3>
+<ol>
+  <li><b>Login</b> menggunakan akun yang dibuat sendiri melalui <code>flask create-admin</code>.</li>
+  <li><b>Buka Dashboard</b> — amati statistik integritas dan aktivitas.</li>
+  <li><b>Siapkan data demo</b> — perangkat <code>EDGE-RTR-01</code> (IP 10.10.10.1, adapter
+      <code>simulation</code>) dan baseline lab dibuat oleh <code>services/demo_data.py</code>
+      (via <code>flask seed-demo</code> atau saat skenario dijalankan).</li>
+  <li><b>Jalankan Skenario 1 — Perubahan Normal</b>: catatan perangkat berubah → hasil check
+      <code>CHANGED</code>, risiko <b>LOW</b>, tidak ada insiden.</li>
+  <li><b>Jalankan Skenario 2 — Perubahan Mencurigakan</b>: firewall dinonaktifkan → risiko
+      <b>HIGH</b>, insiden baru dibuat otomatis.</li>
+  <li><b>Jalankan Skenario 3 — Perubahan Akses</b>: SSH diaktifkan → risiko <b>HIGH</b>,
+      insiden dibuat, lalu operator mengajukan pemulihan.</li>
+  <li><b>Alur respons</b>: Ajukan restore → setujui (oleh berwenang; persetujuan diri untuk
+      risiko tinggi diblokir) → eksekusi → verifikasi status insiden selesai.</li>
+  <li><b>Periksa Audit</b> — seluruh langkah di atas tercatat lengkap dengan aktor, peran, IP,
+      waktu, dan hasil.</li>
+  <li><b>Reset data demo</b> bila perlu (Settings → reset simulasi): data baseline/check/insiden
+      demo dibersihkan, <b>audit trail tetap tersimpan</b>.</li>
+</ol>
+
+<h3>7.3 Menambahkan router nyata (opsional, untuk lingkungan lab)</h3>
+<ol>
+  <li>Tambahkan router melalui menu Routers (host, port, kredensial SSH).</li>
+  <li>Daftarkan sidik jari host perangkat: <code>ssh-keyscan -p 22 &lt;ip&gt; &gt;&gt; ~/.ssh/known_hosts</code>
+      lalu set <code>SSH_KNOWN_HOSTS_FILE</code>. Tanpa ini, koneksi SSH akan <b>ditolak</b>
+      (kebijakan RejectPolicy).</li>
+  <li>Uji koneksi, lalu jalankan backup. File backup tersimpan pada direktori <code>backups/</code>.</li>
+</ol>
+
+<!-- ============ 8 ============ -->
+<div class="page-break"></div>
+<h2>8. Keamanan dan Pengujian</h2>
+
+<h3>8.1 Kontrol keamanan yang diimplementasikan</h3>
+<table>
+  <tr><th style="width:26%">Kontrol</th><th>Implementasi</th></tr>
+  <tr><td>Autentikasi</td><td>Sesi Flask dengan cookie HttpOnly, SameSite=Lax, masa berlaku 8 jam; <code>SESSION_COOKIE_SECURE</code> untuk HTTPS; invalidasi sesi lama saat password berubah via <code>session_version</code></td></tr>
+  <tr><td>Kebijakan password</td><td>Min 12 karakter, campuran besar/kecil/angka/simbol, daftar password lemah, tanpa username; hashing PBKDF2-SHA256 (Werkzeug)</td></tr>
+  <tr><td>Throttling login</td><td>Database-backed (<code>login_attempts</code>), default 5 percobaan / 300 detik, <i>fails-closed</i> bila backend gagal; login sukses tidak mereset throttle IP lain</td></tr>
+  <tr><td>CSRF</td><td>Token CSRF kustom untuk semua perubahan state; perbandingan tahan timing; JSON array ditolak dengan aman</td></tr>
+  <tr><td>RBAC</td><td><code>admin</code>/<code>operator</code>/<code>auditor</code> ditegakkan di backend; auditor read-only; admin tidak dapat mencabut akses admin miliknya sendiri</td></tr>
+  <tr><td>Audit append-only</td><td>Event SQLAlchemy memblokir update &amp; delete pada <code>audit_log</code></td></tr>
+  <tr><td>Proteksi path traversal</td><td><code>safe_join_path</code>, <code>is_safe_path</code>, <code>sanitize_filename</code> untuk semua unduhan/upload</td></tr>
+  <tr><td>Keamanan SSH</td><td>RejectPolicy + verifikasi known_hosts; dukungan RSA/Ed25519/ECDSA; galat autentikasi/host key ditangani eksplisit</td></tr>
+  <tr><td>Header keamanan</td><td>Diuji pada <code>test_security_headers_present</code></td></tr>
+  <tr><td>Batas upload</td><td><code>MAX_CONTENT_LENGTH</code> 2 MB</td></tr>
+  <tr><td>Kontrol restore</td><td>Restore perangkat nyata diblokir; baseline yang dimanipulasi memblokir restore; eksekusi restore bersifat atomik</td></tr>
+</table>
+
+<h3>8.2 Pengujian</h3>
+<pre><code>pip install -r requirements-dev.txt
+python -m pytest -q            # 79 test, seluruhnya lulus (hasil audit HANDOFF.md)</code></pre>
+
+<table>
+  <tr><th style="width:34%">Berkas test</th><th>Cakupan</th></tr>
+  <tr><td><code>tests/test_app.py</code></td><td>Kebijakan password, login, RBAC matrix, CSRF, render semua template, CLI init-db &amp; create-admin</td></tr>
+  <tr><td><code>tests/test_integrity.py</code></td><td>Parser konfigurasi, hash SHA-256 semantik &amp; stabil, diff, penilaian risiko (normal/firewall/SSH)</td></tr>
+  <tr><td><code>tests/test_simulation.py</code></td><td>3 skenario simulasi, pembuatan insiden &amp; audit, reset demo berulang, imutabilitas audit, restore simulasi/rollback, blokir restore nyata</td></tr>
+  <tr><td><code>tests/test_stage2b.py</code></td><td>Siklus insiden, baseline, respons &amp; rollback, proteksi path/XSS, timestamp UTC, hygiene secret Docker/env</td></tr>
+  <tr><td><code>tests/test_stage2b_security.py</code></td><td>Persetujuan-diri risiko tinggi diblokir, RBAC, rate-limit fails-closed, security headers, eksekusi atomik</td></tr>
+  <tr><td><code>tests/test_baselines.py</code></td><td>Pembuatan, versi unik, aktivasi, integritas baseline</td></tr>
+  <tr><td><code>tests/test_migration.py</code></td><td>Inisialisasi skema database</td></tr>
+</table>
+
+<!-- ============ 9 ============ -->
+<h2>9. Batasan Sistem</h2>
+<div class="warn">
+Bagian ini disusun dari hasil audit kode dan catatan handoff — penting untuk transparansi
+demonstrasi kompetisi.
+</div>
+<ol>
+  <li><b>Restore perangkat nyata belum diimplementasikan.</b> Flag
+      <code>SIGAP_ALLOW_REAL_RESTORE</code> dinonaktifkan
+      secara default dan jalurnya tetap diblokir; yang tersedia hanya restore simulasi.</li>
+  <li><b>Tanpa akun default.</b> Tidak ada admin/operator/auditor bawaan; akun harus dibuat
+      lewat CLI eksplisit.</li>
+  <li><b>Database default SQLite.</b> MySQL didukung via <code>DATABASE_URL</code> tetapi
+      butuh konfigurasi terpisah.</li>
+  <li><b>Regresi statistik dashboard</b> (dicatat di HANDOFF.md dan terverifikasi di kode):
+      <ul>
+        <li><code>Device.latest_check</code> dihapus dari model tetapi masih dipanggil
+            <code>templates/device_detail.html:30</code> → kolom "Snapshot Terakhir" selalu
+            menampilkan <code>—</code>.</li>
+        <li><code>Device.integrity_state</code> hanya mengembalikan <code>UNKNOWN / INTACT /
+            DRIFT</code>, sedangkan <code>app.py:393</code> masih menghitung nilai
+            <code>NOT_CHECKED</code> → statistik "belum diperiksa" selalu 0 dan <code>UNKNOWN</code>
+            tidak memiliki pemetaan warna.</li>
+      </ul>
+  </li>
+  <li><b><code>test_dashboard.py</code> di root repo menulis ke database utama</b> (tanpa
+      override <code>DATABASE_URL</code>) — jangan dijalankan; gunakan
+      <code>python -m pytest tests -q</code> yang mengarah ke database sementara.</li>
+  <li><b>Tabel <code>devices</code> mengandung baris uji</b> (<code>test-*</code>) dari
+      pemeriksaan sebelumnya — sebaiknya dibersihkan sebelum demonstrasi publik.</li>
+  <li><b>Belum ada ekspor laporan PDF bawaan</b> dalam aplikasi; ekspor dilakukan melalui
+      fitur unduhan snapshot/baseline/backup.</li>
+  <li><b>Deployment produksi Linux</b> mengasumsikan systemd + Gunicorn; lingkungan Windows
+      hanya untuk development.</li>
+  <li><b>Mode scheduler</b> dapat dimatikan dengan <code>SCHEDULER_ENABLED=false</code>;
+      berjalan sebagai proses background dengan mekanisme leadership lock.</li>
+</ol>
+
+<!-- ============ 10 ============ -->
+<h2>10. Struktur Repositori</h2>
+<table>
+  <tr><th style="width:34%">Berkas / Direktori</th><th>Keterangan</th></tr>
+  <tr><td><code>app.py</code></td><td>Aplikasi Flask utama, route utama, CLI, dashboard</td></tr>
+  <tr><td><code>routes/</code></td><td>Blueprint: devices, baselines, checks, incidents, audittrail, users, simulation</td></tr>
+  <tr><td><code>services/</code></td><td>integrity, risk, monitoring, response, simulation, audit, demo_data, adapters</td></tr>
+  <tr><td><code>db.py</code></td><td>15 model database + konstanta peran &amp; level risiko</td></tr>
+  <tr><td><code>config.py</code></td><td>Konfigurasi aplikasi, SECRET_KEY, environment</td></tr>
+  <tr><td><code>authz.py</code></td><td>RBAC dan manajemen sesi pengguna</td></tr>
+  <tr><td><code>security.py</code></td><td>Kebijakan password, sanitasi, proteksi path, IP klien</td></tr>
+  <tr><td><code>csrf.py</code>, <code>ratelimit.py</code></td><td>CSRF token dan throttling login berbasis DB</td></tr>
+  <tr><td><code>mikrotik.py</code>, <code>scheduler.py</code></td><td>Klien SSH MikroTik dan penjadwal backup APScheduler</td></tr>
+  <tr><td><code>bootstrap.py</code></td><td>Pembuatan user &amp; helper bootstrap</td></tr>
+  <tr><td><code>templates/</code></td><td>29 template Jinja2 (dashboard, devices, checks, incidents, audit, users, dst.)</td></tr>
+  <tr><td><code>tests/</code></td><td>79 test pytest</td></tr>
+  <tr><td><code>migrations/</code></td><td>Migrasi Alembic (termasuk 001_add_sigapnet_tables)</td></tr>
+  <tr><td><code>data/</code></td><td>Database SQLite (<code>sigapnet.db</code>)</td></tr>
+  <tr><td><code>backups/</code>, <code>logs/</code></td><td>Data runtime: file backup dan log aplikasi</td></tr>
+  <tr><td><code>Dockerfile</code>, <code>docker-compose.yml</code>, <code>entrypoint.sh</code></td><td>Deployment kontainer</td></tr>
+  <tr><td><code>mikrobackup.service</code></td><td>Contoh unit systemd untuk produksi Linux</td></tr>
+  <tr><td><code>README.md</code>, <code>HANDOFF.md</code></td><td>Dokumentasi utama dan catatan handoff pengembangan</td></tr>
+</table>
+
+<div class="footer-note">
+SIGAP-NET v1.0.0 — Dokumentasi Teknis · UKM Kartika Cyber, POLTEKAD · Disusun dari audit
+kode sumber tanggal 12 November 2026. Dokumen ini tidak menyertakan kredensial, token,
+atau data sensitif apa pun.
+</div>
+
+</body>
+</html>

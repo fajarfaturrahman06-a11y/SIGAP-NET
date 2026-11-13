@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% from '_macros.html' import csrf_field %}
+{% from '_macros.html' import csrf_field with context %}
 {% block title %}{{ 'Edit' if is_edit else 'Tambah' }} Perangkat{% endblock %}
 {% block page_title %}{{ 'Edit Perangkat' if is_edit else 'Tambah Perangkat' }}{% endblock %}
 {% block content %}

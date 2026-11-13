@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% from '_macros.html' import risk_badge, incident_badge, change_badge, empty_state, csrf_field %}
+{% from '_macros.html' import risk_badge, incident_badge, change_badge, empty_state, csrf_field with context %}
 {% block title %}{{ incident.code }}{% endblock %}
 {% block page_title %}Insiden {{ incident.code }}{% endblock %}
 {% block content %}

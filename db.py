@@ -226,22 +226,37 @@ class Device(db.Model):
                 return b
         return None
 
-    @property
-    def latest_check(self):
-        return self.checks[0] if self.checks else None
-
-    @property
-    def open_incidents(self):
-        return [i for i in self.incidents if i.status in INCIDENT_OPEN_STATUSES]
+    def activate_baseline(self, baseline_id):
+        """Activate a baseline and deactivate all others for this device."""
+        from db import db
+        # Deactivate all baselines for this device
+        Baseline.query.filter_by(device_id=self.id).update({Baseline.is_active: False})
+        # Activate the specified baseline
+        Baseline.query.filter_by(id=baseline_id, device_id=self.id).update({Baseline.is_active: True})
+        db.session.commit()
 
     @property
     def integrity_state(self):
+        """Return the integrity state of the device: 'INTACT', 'DRIFT', or 'UNKNOWN'."""
+        # If no baseline, state is unknown
         if not self.active_baseline:
-            return 'NO_BASELINE'
-        check = self.latest_check
-        if not check:
-            return 'NOT_CHECKED'
-        return 'INTACT' if check.status == 'OK' else 'DRIFT'
+            return 'UNKNOWN'
+        
+        # Get the most recent config check
+        latest_check = ConfigCheck.query.filter_by(device_id=self.id).order_by(
+            ConfigCheck.created_at.desc()).first()
+        
+        if not latest_check:
+            return 'UNKNOWN'
+        
+        # Map check status to integrity state
+        if latest_check.status == 'OK':
+            return 'INTACT'
+        elif latest_check.status == 'DRIFT':
+            return 'DRIFT'
+        else:
+            return 'UNKNOWN'
+
 
 
 class Baseline(db.Model):
@@ -270,6 +285,19 @@ class Baseline(db.Model):
     @property
     def version_label(self):
         return f'v{self.version}'
+
+    def save(self):
+        """Save baseline with automatic single-active enforcement."""
+        from db import db
+        if self.is_active:
+            # Deactivate all other baselines for the same device
+            if self.device_id:
+                Baseline.query.filter(
+                    Baseline.device_id == self.device_id,
+                    Baseline.id != self.id
+                ).update({Baseline.is_active: False})
+        db.session.add(self)
+        db.session.commit()
 
 
 class ConfigCheck(db.Model):

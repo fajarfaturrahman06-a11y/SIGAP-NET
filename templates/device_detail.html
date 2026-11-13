@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% from '_macros.html' import risk_badge, incident_badge, integrity_badge, empty_state, csrf_field %}
+{% from '_macros.html' import risk_badge, incident_badge, integrity_badge, empty_state, csrf_field with context %}
 {% block title %}{{ device.name }}{% endblock %}
 {% block page_title %}Detail Perangkat{% endblock %}
 {% block content %}

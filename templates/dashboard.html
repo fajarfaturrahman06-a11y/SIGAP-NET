@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% from '_macros.html' import risk_badge, incident_badge, empty_state, csrf_field %}
+{% from '_macros.html' import risk_badge, incident_badge, empty_state, csrf_field with context %}
 {% block title %}Dashboard{% endblock %}
 {% block page_title %}Dashboard Monitoring{% endblock %}
 {% block content %}

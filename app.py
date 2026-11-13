@@ -77,15 +77,20 @@ def init_db(seed_demo):
 
 @app.cli.command("create-admin")
 @click.argument("username")
-@click.argument("password")
 @click.option("--role", default="admin", type=click.Choice(["admin", "operator", "auditor"]))
 @click.option("--email", default=None)
-def create_admin(username, password, role, email):
-    """Creates a user after enforcing the strong-password policy."""
+def create_admin(username, role, email):
+    """Creates a user after enforcing the strong-password policy.
+
+    The password is never accepted on the command line; it is prompted for with
+    hidden input so it cannot leak into shell history or the process list.
+    """
     with app.app_context():
         if User.query.filter_by(username=username).first():
             print("User already exists.")
             return
+        password = click.prompt("Password", hide_input=True,
+                                confirmation_prompt=True)
         try:
             user = create_user(username, password, role, email=email, commit=False)
         except ValueError as exc:

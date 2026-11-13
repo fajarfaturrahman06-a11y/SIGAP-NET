@@ -1,0 +1,24 @@
+SIGAP-NET — LAPORAN RUN DEMO VIDEO OTOMATIS
+====================================================
+Waktu          : 2026-11-12 20:14:34
+Sistem         : Windows-11-10.0.26200-SP0
+
+STATUS DEPENDENSI (hasil pemeriksaan, bukan asumsi):
+
+LANGKAH YANG DIJALANKAN:
+  1. video YouTube: 13 adegan
+
+ISOLASI DATABASE:
+  - Aplikasi dijalankan dengan DATABASE_URL -> database demo terpisah di folder ini.
+  - Database utama hanya dibaca untuk verifikasi hash.
+  - Hash sebelum : 2c5869b4c595785cfc4e32b0e83d7f77ff375dc12d05e14b3d4e4c513952dbdc
+  - Hash sesudah : 2c5869b4c595785cfc4e32b0e83d7f77ff375dc12d05e14b3d4e4c513952dbdc
+  - Kesamaan     : SAMA (utuh)
+
+REKAMAN:
+  - Rekaman browser : YA (Playwright)
+  - Rekaman layar+audio (ffmpeg): TIDAK ADA
+  - Screenshot       : folder screenshots/ (diisi saat mode Playwright aktif)
+  - Log server       : ../server.log
+
+Catatan: tidak ada password/token yang disimpan pada laporan ini.

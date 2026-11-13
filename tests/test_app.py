@@ -181,8 +181,8 @@ def test_init_db_cli_creates_schema_without_users(app):
 
 def test_weak_admin_password_is_rejected_by_cli(app):
     runner = CliRunner()
-    result = runner.invoke(flask_app.cli,
-                           ['create-admin', 'weakadmin', 'password'])
+    result = runner.invoke(flask_app.cli, ['create-admin', 'weakadmin'],
+                           input='password\npassword\n')
     assert result.exit_code == 0
     assert 'User not created' in result.output
     with app.app_context():
@@ -191,8 +191,8 @@ def test_weak_admin_password_is_rejected_by_cli(app):
 
 def test_strong_admin_can_be_created_by_cli(app):
     runner = CliRunner()
-    result = runner.invoke(flask_app.cli,
-                           ['create-admin', 'cliadmin', PASSWORD])
+    result = runner.invoke(flask_app.cli, ['create-admin', 'cliadmin'],
+                           input=f'{PASSWORD}\n{PASSWORD}\n')
     assert result.exit_code == 0, result.output
     assert 'created successfully' in result.output
     with app.app_context():
